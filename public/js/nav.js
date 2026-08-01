@@ -11,7 +11,7 @@ function renderNav(activePage) {
   navEl.innerHTML = `
     <nav class="navbar">
       <div class="container">
-        <a href="index.html" class="logo">Data<span>Hub</span>GH</a>
+        <a href="index.html" class="logo">Ancestor<span>Data</span>Hub</a>
         <ul class="nav-links" id="navLinks">
           <li><a href="index.html" class="${activePage === "home" ? "active" : ""}">Home</a></li>
           <li><a href="buy.html" class="${activePage === "buy" ? "active" : ""}">Buy Data</a></li>
@@ -53,14 +53,14 @@ function renderFooter() {
     <footer>
       <div class="container footer-grid">
         <div>
-          <div class="logo" style="margin-bottom:10px;">Data<span>Hub</span>GH</div>
+          <div class="logo" style="margin-bottom:10px;">Ancestor<span>Data</span>Hub</div>
           <p>Ghana's fast and reliable data bundle & BECE result checker platform.</p>
         </div>
         <ul class="footer-links">
           <li><a href="#">About Us</a></li>
           <li><a href="#">Terms of Service</a></li>
           <li><a href="#">Refund Policy</a></li>
-          <li><a href="https://wa.me/233000000000" target="_blank">WhatsApp Support</a></li>
+          <li><a href="https://wa.me/233554320613" target="_blank">WhatsApp Support</a></li>
         </ul>
       </div>
       <div class="container" style="margin-top:24px; color:var(--text-dim);">
