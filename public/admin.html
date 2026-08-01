@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | DataHubGH</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<section class="section">
+  <div class="container">
+    <h1 class="section-title" style="text-align:left;">Admin Dashboard</h1>
+    <p class="section-subtitle" style="text-align:left; margin-bottom:30px;">Manage orders, wallet balance, and BECE vouchers</p>
+
+    <div id="alertBox"></div>
+
+    <!-- Stats -->
+    <div class="grid grid-3" style="margin-bottom:30px;">
+      <div class="stat-card">
+        <div class="label">iDataGH Wallet Balance</div>
+        <div class="value" id="walletBalance">—</div>
+        <button class="btn btn-outline" style="margin-top:12px; padding:8px 14px; font-size:0.8rem;" onclick="loadWallet()">Refresh</button>
+      </div>
+      <div class="stat-card">
+        <div class="label">Orders Awaiting Fulfillment</div>
+        <div class="value" id="pendingCount">—</div>
+        <button class="btn btn-primary" style="margin-top:12px; padding:8px 14px; font-size:0.8rem;" onclick="reconcile()" id="reconcileBtn">Reconcile Now</button>
+      </div>
+      <div class="stat-card">
+        <div class="label">Delivered Orders (recent)</div>
+        <div class="value" id="deliveredCount">—</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="orders" onclick="switchTab('orders')">Orders</button>
+      <button class="tab-btn" data-tab="vouchers" onclick="switchTab('vouchers')">BECE Vouchers</button>
+    </div>
+
+    <!-- Orders tab -->
+    <div id="ordersTab">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="form-group" style="max-width:240px; margin-bottom:0;">
+          <label>Filter by Status</label>
+          <select id="statusFilter" onchange="loadOrders()">
+            <option value="">All</option>
+            <option value="pending_payment">Pending Payment</option>
+            <option value="processing">Processing</option>
+            <option value="delivered">Delivered</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card table-wrap">
+        <table class="data-table" id="ordersTable">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Network</th>
+              <th>Bundle</th>
+              <th>Delivery #</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Placed</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody">
+            <tr><td colspan="7" class="hint">Loading orders…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Vouchers tab -->
+    <div id="vouchersTab" style="display:none;">
+      <div class="grid grid-3" style="margin-bottom:20px;" id="stockGrid">
+        <p class="hint">Loading stock…</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:16px;">Bulk Load Vouchers</h3>
+        <div class="form-group">
+          <label>Exam Year</label>
+          <select id="voucherYear">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Vouchers (one per line, format: serial,pin)</label>
+          <textarea id="voucherInput" placeholder="WAEC12345,1234567&#10;WAEC12346,7654321"></textarea>
+          <p class="hint">Paste serial,pin pairs — one voucher per line, comma-separated.</p>
+        </div>
+        <button class="btn btn-primary" id="uploadVoucherBtn" onclick="uploadVouchers()">Upload Vouchers</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
