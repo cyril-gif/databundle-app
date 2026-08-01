@@ -63,19 +63,15 @@ export const createOrder = async (req, res, next) => {
       order.paymentReference = chargeRes.data.reference;
       await order.save();
 
-      
-
       return res.status(201).json({
         message: "Approve the payment prompt sent to your phone to complete this order.",
         order,
         paystackStatus: chargeRes.data.status, // expect "pay_offline" for Ghana MoMo
       });
-
-      console.error(...)
-      
     } catch (paymentErr) {
       order.status = "failed";
       await order.save();
+      console.error(`Paystack charge failed for order ${order.reference} (phone: ${paymentPhone}):`, paymentErr.message);
       return res.status(502).json({ message: `Payment could not be started: ${paymentErr.message}` });
     }
   } catch (err) {
