@@ -1,0 +1,291 @@
+import Order from "../models/Order.js";
+import Bundle from "../models/Bundle.js";
+import Referral from "../models/Referral.js";
+import { generateOrderRef } from "../utils/generateRef.js";
+import { initiateMobileMoneyCharge, PAYSTACK_PROVIDER_MAP, submitOtp } from "../utils/paystack.js";
+import { placeOrder, getOrderStatus } from "../utils/idatagh.js";
+
+// @desc Create a new data order and initiate a Paystack Mobile Money charge
+// @route POST /api/orders
+export const createOrder = async (req, res, next) => {
+  try {
+    const { bundleId, deliveryPhone, paymentPhone, paymentMethod } = req.body;
+
+    if (!bundleId || !deliveryPhone || !paymentPhone || !paymentMethod) {
+      return res.status(400).json({ message: "All order fields are required" });
+    }
+
+    const provider = PAYSTACK_PROVIDER_MAP[paymentMethod];
+    if (!provider) {
+      return res.status(400).json({ message: "Unsupported payment method" });
+    }
+
+    const bundle = await Bundle.findById(bundleId);
+    if (!bundle || !bundle.active) {
+      return res.status(404).json({ message: "Selected bundle is unavailable" });
+    }
+
+    // Guard: block duplicate orders for the same number within 5 minutes
+    const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const duplicate = await Order.findOne({
+      deliveryPhone,
+      createdAt: { $gte: fiveMinsAgo },
+      status: { $in: ["pending_payment", "processing"] },
+    });
+    if (duplicate) {
+      return res.status(429).json({
+        message: "You already have a pending order for this number. Please wait a few minutes before ordering again.",
+      });
+    }
+
+    const order = await Order.create({
+      reference: generateOrderRef("DB"),
+      user: req.user?._id || null,
+      network: bundle.network,
+      bundle: bundle._id,
+      bundleSize: bundle.size,
+      price: bundle.price,
+      deliveryPhone,
+      paymentPhone,
+      paymentMethod,
+      status: "pending_payment",
+    });
+
+    try {
+      const chargeRes = await initiateMobileMoneyCharge({
+        amountPesewas: Math.round(bundle.price * 100),
+        email: `${paymentPhone.replace(/\D/g, "")}@${process.env.CUSTOMER_EMAIL_DOMAIN || "customer.databundlegh.com"}`,
+        phone: paymentPhone,
+        provider,
+        reference: order.reference,
+      });
+
+      order.paymentReference = chargeRes.data.reference;
+      await order.save();
+
+      return res.status(201).json({
+        message: "Approve the payment prompt sent to your phone to complete this order.",
+        order,
+        paystackStatus: chargeRes.data.status, // expect "pay_offline" for Ghana MoMo
+      });
+    } catch (paymentErr) {
+      order.status = "failed";
+      await order.save();
+      return res.status(502).json({ message: `Payment could not be started: ${paymentErr.message}` });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Marks an order paid and triggers data delivery. This is the ONLY place order
+ * fulfillment should happen — it is called from the Paystack webhook handler
+ * (server/controllers/paymentController.js) once `charge.success` is confirmed.
+ * Never call this directly from a route the browser can trigger.
+ */
+export const fulfillOrder = async (order) => {
+  if (order.status !== "pending_payment") return order;
+
+  order.status = "processing";
+  await order.save();
+
+  if (order.user) {
+    await Referral.findOneAndUpdate(
+      { referredUser: order.user, status: "pending" },
+      { status: "completed", rewardAmount: 2 } // GH₵2 reward, adjust as needed
+    );
+  }
+
+  // --- DATA DELIVERY: iDataGH ---
+  try {
+    const placeRes = await placeOrder({
+      network: order.network,
+      beneficiary: order.deliveryPhone,
+      dataSize: await getBundleDataSize(order),
+    });
+
+    order.providerOrderId = String(placeRes.order_id);
+    await order.save();
+
+    // iDataGH orders can be "Pending" before they finish, so do one immediate
+    // status check. If it's not done yet, leave the order as "processing" —
+    // call reconcilePendingOrders() (see below) on a schedule to catch up later.
+    const statusRes = await getOrderStatus(placeRes.order_id);
+    if (statusRes.order_status === "Completed") {
+      order.status = "delivered";
+      order.deliveredAt = new Date();
+    }
+    await order.save();
+  } catch (err) {
+    // Covers both a failed order placement and an insufficient iDataGH wallet
+    // balance. The customer has already paid via Paystack at this point, so a
+    // failure here means you owe them a manual refund or retry — check the
+    // order's providerOrderId (will be null) to spot these in the admin view.
+    order.status = "failed";
+    await order.save();
+    console.error(`iDataGH delivery failed for order ${order.reference}: ${err.message}`);
+  }
+
+  return order;
+};
+
+// Fallback lookup if the bundle wasn't populated on the order object
+async function getBundleDataSize(order) {
+  const bundle = await Bundle.findById(order.bundle);
+  if (!bundle?.providerDataSize) {
+    throw new Error(`No providerDataSize set on bundle for order ${order.reference} — run npm run sync-packages`);
+  }
+  return bundle.providerDataSize;
+}
+
+/**
+ * Sweeps orders stuck in "processing" and checks their real status with
+ * iDataGH, marking them delivered once completed. iDataGH's place-order can
+ * return before the top-up actually finishes, so this catches those cases.
+ * Wire this up to a scheduled job (cron, or a hosting platform's scheduled
+ * task) to run every few minutes.
+ */
+export const reconcilePendingOrders = async () => {
+  const pending = await Order.find({ status: "processing", providerOrderId: { $ne: null } });
+  const results = [];
+
+  for (const order of pending) {
+    try {
+      const statusRes = await getOrderStatus(order.providerOrderId);
+      if (statusRes.order_status === "Completed") {
+        order.status = "delivered";
+        order.deliveredAt = new Date();
+        await order.save();
+        results.push({ reference: order.reference, status: "delivered" });
+      } else if (statusRes.order_status === "Failed") {
+        order.status = "failed";
+        await order.save();
+        results.push({ reference: order.reference, status: "failed" });
+      }
+    } catch (err) {
+      results.push({ reference: order.reference, status: "check_failed", error: err.message });
+    }
+  }
+
+  return results;
+};
+
+/**
+ * Some Mobile Money charges require the customer to enter an OTP (sent via SMS)
+ * before the payment can proceed. The frontend calls this once the customer
+ * types it in. This does NOT confirm the payment itself — that still only
+ * happens via the Paystack webhook once the charge fully succeeds.
+ * @route POST /api/orders/:reference/submit-otp
+ */
+export const submitOrderOtp = async (req, res, next) => {
+  try {
+    const { otp } = req.body;
+    if (!otp) return res.status(400).json({ message: "OTP is required" });
+
+    const order = await Order.findOne({ reference: req.params.reference });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order.paymentReference) {
+      return res.status(400).json({ message: "No pending payment found for this order" });
+    }
+
+    const result = await submitOtp({ otp, reference: order.paymentReference });
+    res.json({ message: "OTP submitted, waiting for payment confirmation", status: result.data.status });
+  } catch (err) {
+    // Wrong/expired OTPs come back as a normal error from Paystack, not a crash
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// @desc DEV-ONLY manual fulfillment trigger. Useful for local testing before your
+// webhook URL is publicly reachable (e.g. before setting up ngrok). Remove or lock
+// this behind admin auth before going live — real fulfillment must come from the
+// Paystack webhook only, since that's the only source that proves payment happened.
+// @route POST /api/orders/:reference/dev-confirm
+export const devConfirmOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ reference: req.params.reference });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    const updated = await fulfillOrder(order);
+    res.json({ message: "Order manually fulfilled (dev mode)", order: updated });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Get order status by reference (used by the frontend to poll for completion)
+// @route GET /api/orders/:reference
+export const getOrderByReference = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ reference: req.params.reference }).populate("bundle");
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    res.json(order);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Get logged-in user's order history
+// @route GET /api/orders/my-orders
+export const getMyOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Get recent delivered orders (for homepage social-proof ticker)
+// @route GET /api/orders/recent-activity
+export const getRecentActivity = async (req, res, next) => {
+  try {
+    const recent = await Order.find({ status: "delivered" })
+      .sort({ deliveredAt: -1 })
+      .limit(8)
+      .select("reference deliveryPhone bundleSize network deliveredAt");
+
+    const masked = recent.map((o) => ({
+      reference: o.reference,
+      network: o.network,
+      bundleSize: o.bundleSize,
+      deliveredAt: o.deliveredAt,
+      phone: o.deliveryPhone.replace(/(\d{3})\d{4}(\d{2,3})/, "$1XXXX$2"),
+    }));
+
+    res.json(masked);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Get all orders (admin)
+// @route GET /api/orders
+export const getAllOrders = async (req, res, next) => {
+  try {
+    const filter = {};
+    if (req.query.status) filter.status = req.query.status;
+    const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(200);
+    res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Update order status manually (admin)
+// @route PUT /api/orders/:id/status
+export const updateOrderStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    order.status = status;
+    if (status === "delivered") order.deliveredAt = new Date();
+    await order.save();
+
+    res.json(order);
+  } catch (err) {
+    next(err);
+  }
+};

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refer & Earn | DataHubGH</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<section class="section">
+  <div class="container" style="max-width:600px;">
+    <h1 class="section-title">Refer & Earn</h1>
+    <p class="section-subtitle">Invite friends and earn GH₵2 for every friend who places their first order</p>
+
+    <div id="alertBox"></div>
+
+    <div id="loggedOutView" style="display:none;" class="card">
+      <p style="margin-bottom:16px;">Sign in to get your unique referral link and start earning.</p>
+      <a href="signin.html" class="btn btn-primary btn-block">Sign In</a>
+    </div>
+
+    <div id="loggedInView" style="display:none;">
+      <div class="card" style="margin-bottom:20px;">
+        <p class="hint">YOUR REFERRAL LINK</p>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <input type="text" id="referralLink" readonly>
+          <button class="btn btn-primary" onclick="copyLink()">Copy</button>
+        </div>
+      </div>
+
+      <div class="grid grid-3" style="margin-bottom:20px;">
+        <div class="card">
+          <p class="hint">Total Referrals</p>
+          <h2 id="totalReferrals" style="margin-top:6px;">0</h2>
+        </div>
+        <div class="card">
+          <p class="hint">Total Earned</p>
+          <h2 id="totalEarned" style="margin-top:6px; color:var(--accent);">GH₵0</h2>
+        </div>
+        <div class="card">
+          <p class="hint">Pending</p>
+          <h2 id="pendingCount" style="margin-top:6px;">0</h2>
+        </div>
+      </div>
+
+      <button class="btn btn-outline btn-block" onclick="withdraw()">Withdraw Earnings to Wallet</button>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/api.js"></script>
+<script src="js/refer.js"></script>
+</body>
+</html>

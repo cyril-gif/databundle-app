@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Data Bundles | DataHubGH</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<section class="section">
+  <div class="container">
+
+    <div class="steps" id="stepsBar">
+      <div class="step-pill active" data-step="1"><span class="num">1</span> Network</div>
+      <div class="step-pill" data-step="2"><span class="num">2</span> Bundle</div>
+      <div class="step-pill" data-step="3"><span class="num">3</span> Phone</div>
+      <div class="step-pill" data-step="4"><span class="num">4</span> Payment</div>
+      <div class="step-pill" data-step="5"><span class="num">5</span> Done</div>
+    </div>
+
+    <div id="alertBox"></div>
+
+    <div class="flow-layout">
+      <div>
+
+        <!-- STEP 1: Network -->
+        <div class="flow-step" id="step1">
+          <h2 class="section-title" style="text-align:left;">Select Your Network</h2>
+          <div class="grid grid-3">
+            <div class="network-card" data-network="MTN">
+              <div class="icon" style="background:#ffcc00;"></div>
+              <h3>MTN</h3>
+            </div>
+            <div class="network-card" data-network="Telecel">
+              <div class="icon" style="background:#e2001a;"></div>
+              <h3>Telecel</h3>
+            </div>
+            <div class="network-card" data-network="AirtelTigo">
+              <div class="icon" style="background:#0072ce;"></div>
+              <h3>AirtelTigo</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Bundle -->
+        <div class="flow-step" id="step2" style="display:none;">
+          <h2 class="section-title" style="text-align:left;">Choose a Bundle</h2>
+          <div class="grid grid-3" id="bundleGrid">
+            <p class="hint">Loading bundles…</p>
+          </div>
+          <div style="margin-top:20px; display:flex; gap:10px;">
+            <button class="btn btn-outline" onclick="goToStep(1)">Back</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Phone -->
+        <div class="flow-step" id="step3" style="display:none;">
+          <h2 class="section-title" style="text-align:left;">Enter Delivery Number</h2>
+          <div class="form-group">
+            <label>Phone number to receive data</label>
+            <input type="tel" id="deliveryPhone" placeholder="e.g. 0541234567" maxlength="10">
+            <p class="hint">Data will be sent to this number. Please double-check it — no refunds for wrong numbers.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-outline" onclick="goToStep(2)">Back</button>
+            <button class="btn btn-primary" onclick="submitPhone()">Continue</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Payment -->
+        <div class="flow-step" id="step4" style="display:none;">
+          <h2 class="section-title" style="text-align:left;">Pay with Mobile Money</h2>
+
+          <div id="payFormFields">
+            <div class="form-group">
+              <label>Payment Method</label>
+              <select id="paymentMethod">
+                <option value="MTN MoMo">MTN MoMo</option>
+                <option value="Telecel Cash">Telecel Cash</option>
+                <option value="AirtelTigo Money">AirtelTigo Money</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mobile Money number to pay from</label>
+              <input type="tel" id="paymentPhone" placeholder="e.g. 0541234567" maxlength="10">
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-outline" onclick="goToStep(3)">Back</button>
+              <button class="btn btn-primary" id="payBtn" onclick="submitOrder()">Confirm & Pay</button>
+            </div>
+          </div>
+
+          <div id="otpBlock" class="card" style="display:none;">
+            <h3 style="margin-bottom:10px;">Enter the Code Sent to Your Phone</h3>
+            <p class="hint" style="margin-bottom:16px;">Paystack sent a one-time code via SMS to <b id="otpPhone" style="color:var(--text);"></b> to authorize this payment. Enter it below.</p>
+            <div class="form-group">
+              <label>One-Time Code</label>
+              <input type="text" id="otpInput" placeholder="e.g. 123456" maxlength="6" inputmode="numeric">
+            </div>
+            <button class="btn btn-primary btn-block" id="otpBtn" onclick="submitOtp()">Submit Code</button>
+          </div>
+
+          <div id="waitingBlock" class="card" style="display:none; text-align:center;">
+            <div class="spinner" style="width:32px; height:32px; margin:0 auto 16px; color:var(--accent);"></div>
+            <h3 style="margin-bottom:10px;">Approve the payment on your phone</h3>
+            <p class="hint">
+              We sent a payment prompt of <b id="waitingAmount" style="color:var(--text);"></b>
+              to <b id="waitingPhone" style="color:var(--text);"></b>. Enter your Mobile Money PIN there to complete this order.
+            </p>
+            <p class="hint" style="margin-top:14px;">This page will update automatically once payment is confirmed.</p>
+          </div>
+        </div>
+
+        <!-- STEP 5: Confirmation -->
+        <div class="flow-step" id="step5" style="display:none;">
+          <h2 class="section-title" style="text-align:left;">Order Confirmation</h2>
+          <div class="card" id="confirmationCard"></div>
+        </div>
+
+      </div>
+
+      <!-- Sidebar -->
+      <div class="order-summary">
+        <h3 style="margin-bottom:14px;">Order Summary</h3>
+        <div class="summary-row"><span>Network</span><b id="sumNetwork">—</b></div>
+        <div class="summary-row"><span>Bundle</span><b id="sumBundle">—</b></div>
+        <div class="summary-row"><span>Delivery Number</span><b id="sumPhone">—</b></div>
+        <div class="summary-total"><span>Total</span><span id="sumTotal">GH₵0</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/api.js"></script>
+<script src="js/buy.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account | DataHubGH</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<section class="section">
+  <div class="container" style="max-width:420px;">
+    <h1 class="section-title">Create Your Account</h1>
+    <p class="section-subtitle">Track orders and start earning referral rewards</p>
+
+    <div id="alertBox"></div>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="name" placeholder="e.g. Cyril Mensah">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="phone" placeholder="e.g. 0541234567" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label>Create a 4-Digit PIN</label>
+        <input type="password" id="pin" placeholder="••••" maxlength="4" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label>Referral Code (optional)</label>
+        <input type="text" id="referralCode" placeholder="e.g. CYRIL-4K9Q">
+      </div>
+      <button class="btn btn-primary btn-block" id="signupBtn" onclick="signup()">Create Account</button>
+      <p class="hint" style="text-align:center; margin-top:16px;">
+        Already have an account? <a href="signin.html" style="color:var(--accent); font-weight:600;">Sign in</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

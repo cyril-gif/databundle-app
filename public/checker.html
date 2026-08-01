@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BECE Result Checker | DataHubGH</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<section class="section">
+  <div class="container" style="max-width:600px;">
+    <h1 class="section-title">BECE Result Checker</h1>
+    <p class="section-subtitle">Buy a checker voucher and view your result in minutes</p>
+
+    <div id="alertBox"></div>
+
+    <div class="card" style="margin-bottom:24px;">
+      <p class="hint" style="margin-bottom:10px;">HOW IT WORKS</p>
+      <p>1. Buy a checker voucher (GH₵15) via Mobile Money.<br>
+         2. We instantly issue you a Serial Number and PIN.<br>
+         3. Use the Serial Number and PIN on the official WAEC results portal to view your result.</p>
+      <p class="hint" style="margin-top:12px;">
+        DataHubGH is an independent voucher facilitation service and is not affiliated with WAEC.
+      </p>
+    </div>
+
+    <!-- Buy voucher form -->
+    <div class="card" id="buyForm">
+      <h3 style="margin-bottom:18px;">Buy a Checker Voucher</h3>
+
+      <div id="checkerFormFields">
+        <div class="form-group">
+          <label>Exam Year</label>
+          <select id="examYear">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Number of Vouchers</label>
+          <input type="number" id="quantity" value="1" min="1" max="10">
+        </div>
+
+        <div class="form-group">
+          <label>Your Phone Number (for delivery of PIN)</label>
+          <input type="tel" id="buyerPhone" placeholder="e.g. 0541234567" maxlength="10">
+        </div>
+
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select id="paymentMethod">
+            <option value="MTN MoMo">MTN MoMo</option>
+            <option value="Telecel Cash">Telecel Cash</option>
+            <option value="AirtelTigo Money">AirtelTigo Money</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Mobile Money Number to Pay From</label>
+          <input type="tel" id="paymentPhone" placeholder="e.g. 0541234567" maxlength="10">
+        </div>
+
+        <div class="summary-row"><span>Amount Due</span><b id="amountDue">GH₵15</b></div>
+
+        <button class="btn btn-primary btn-block" id="buyBtn" style="margin-top:16px;" onclick="buyVoucher()">Pay & Get Voucher</button>
+      </div>
+
+      <div id="otpBlock" style="display:none;">
+        <h3 style="margin-bottom:10px;">Enter the Code Sent to Your Phone</h3>
+        <p class="hint" style="margin-bottom:16px;">Paystack sent a one-time code via SMS to <b id="otpPhone" style="color:var(--text);"></b> to authorize this payment. Enter it below.</p>
+        <div class="form-group">
+          <label>One-Time Code</label>
+          <input type="text" id="otpInput" placeholder="e.g. 123456" maxlength="6" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary btn-block" id="otpBtn" onclick="submitOtp()">Submit Code</button>
+      </div>
+
+      <div id="waitingBlock" style="display:none; text-align:center;">
+        <div class="spinner" style="width:32px; height:32px; margin:0 auto 16px; color:var(--accent);"></div>
+        <h3 style="margin-bottom:10px;">Approve the payment on your phone</h3>
+        <p class="hint">
+          We sent a payment prompt of <b id="waitingAmount" style="color:var(--text);"></b>
+          to <b id="waitingPhone" style="color:var(--text);"></b>. Enter your Mobile Money PIN there to complete this purchase.
+        </p>
+        <p class="hint" style="margin-top:14px;">This page will update automatically once payment is confirmed.</p>
+      </div>
+    </div>
+
+    <!-- Result display -->
+    <div class="card" id="resultCard" style="display:none; margin-top:24px;"></div>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/api.js"></script>
+<script src="js/checker.js"></script>
+</body>
+</html>
