@@ -24,7 +24,7 @@ function renderNav(activePage) {
               ? `<span class="hint" style="margin-right:4px;">Hi, ${userName || "there"}</span>
                  <button class="btn btn-outline" onclick="logout()">Sign Out</button>`
               : `<a href="signin.html" class="btn btn-outline">Sign In</a>
-                 <a href="buy.html" class="btn btn-primary">Buy Data</a>`
+                 
           }
         </div>
         <button class="menu-toggle" id="menuToggle">☰</button>
@@ -64,7 +64,7 @@ function renderFooter() {
         </ul>
       </div>
       <div class="container" style="margin-top:24px; color:var(--text-dim);">
-        &copy; ${new Date().getFullYear()} DataHubGH. All rights reserved.
+        &copy; ${new Date().getFullYear()} AncestorDatahub. All rights reserved.
       </div>
     </footer>
   `;
