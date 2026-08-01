@@ -23,7 +23,7 @@ function renderNav(activePage) {
             token
               ? `<span class="hint" style="margin-right:4px;">Hi, ${userName || "there"}</span>
                  <button class="btn btn-outline" onclick="logout()">Sign Out</button>`
-              : `<a href="signin.html" class="btn btn-outline">Sign In</a>
+              : 
                 <a href="buy.html" class="btn btn-primary">Buy Data</a>`
                  
           }
