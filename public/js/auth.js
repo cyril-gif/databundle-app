@@ -12,6 +12,7 @@ function saveSession(data) {
   localStorage.setItem("db_token", data.token);
   localStorage.setItem("db_name", data.name);
   localStorage.setItem("db_phone", data.phone);
+  localStorage.setItem("db_role", data.role || "user");
 }
 
 // LOGIN (signin.html)
