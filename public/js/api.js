@@ -1,5 +1,5 @@
 // Central place for backend URL - change this when you deploy the API
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://databundle-app.onrender.com/api";
 
 const api = {
   async request(path, options = {}) {
