@@ -51,6 +51,9 @@ export const buyVoucher = async (req, res, next) => {
         amountDue,
         paystackStatus: chargeRes.data.status,
       });
+
+      console.error(...)
+      
     } catch (paymentErr) {
       checkerOrder.status = "failed";
       await checkerOrder.save();
