@@ -51,12 +51,10 @@ export const buyVoucher = async (req, res, next) => {
         amountDue,
         paystackStatus: chargeRes.data.status,
       });
-
-      console.error(...)
-      
     } catch (paymentErr) {
       checkerOrder.status = "failed";
       await checkerOrder.save();
+      console.error(`Paystack charge failed for voucher order ${checkerOrder.reference} (phone: ${paymentPhone}):`, paymentErr.message);
       return res.status(502).json({ message: `Payment could not be started: ${paymentErr.message}` });
     }
   } catch (err) {
