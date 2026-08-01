@@ -49,6 +49,7 @@ export const registerUser = async (req, res, next) => {
       _id: user._id,
       name: user.name,
       phone: user.phone,
+      role: user.role,
       referralCode: user.referralCode,
       token: generateToken(user._id, user.role),
     });
