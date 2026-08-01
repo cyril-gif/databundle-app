@@ -4,6 +4,7 @@
 function renderNav(activePage) {
   const token = localStorage.getItem("db_token");
   const userName = localStorage.getItem("db_name");
+  const role = localStorage.getItem("db_role");
 
   const navEl = document.getElementById("navbar");
   if (!navEl) return;
@@ -17,6 +18,7 @@ function renderNav(activePage) {
           <li><a href="buy.html" class="${activePage === "buy" ? "active" : ""}">Buy Data</a></li>
           <li><a href="checker.html" class="${activePage === "checker" ? "active" : ""}">Check BECE Results</a></li>
           <li><a href="refer.html" class="${activePage === "refer" ? "active" : ""}">Refer & Earn</a></li>
+          ${role === "admin" ? `<li><a href="admin.html" class="${activePage === "admin" ? "active" : ""}" style="color:var(--accent);">Admin</a></li>` : ""}
         </ul>
         <div class="nav-cta">
           ${
@@ -24,8 +26,7 @@ function renderNav(activePage) {
               ? `<span class="hint" style="margin-right:4px;">Hi, ${userName || "there"}</span>
                  <button class="btn btn-outline" onclick="logout()">Sign Out</button>`
               : `<a href="signin.html" class="btn btn-outline">Sign In</a>
-                <a href="buy.html" class="btn btn-primary">Buy Data</a>`
-                 
+                 <a href="buy.html" class="btn btn-primary">Buy Data</a>`
           }
         </div>
         <button class="menu-toggle" id="menuToggle">☰</button>
@@ -61,11 +62,11 @@ function renderFooter() {
           <li><a href="#">About Us</a></li>
           <li><a href="#">Terms of Service</a></li>
           <li><a href="#">Refund Policy</a></li>
-          <li><a href="https://wa.me/233554320613" target="_blank">WhatsApp Support</a></li>
+          <li><a href="https://wa.me/233000000000" target="_blank">WhatsApp Support</a></li>
         </ul>
       </div>
       <div class="container" style="margin-top:24px; color:var(--text-dim);">
-        &copy; ${new Date().getFullYear()} AncestorDatahub. All rights reserved.
+        &copy; ${new Date().getFullYear()} AncestorDataHub. All rights reserved.
       </div>
     </footer>
   `;
@@ -75,5 +76,6 @@ function logout() {
   localStorage.removeItem("db_token");
   localStorage.removeItem("db_name");
   localStorage.removeItem("db_phone");
+  localStorage.removeItem("db_role");
   window.location.href = "index.html";
 }
