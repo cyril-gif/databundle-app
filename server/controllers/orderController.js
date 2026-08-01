@@ -63,6 +63,8 @@ export const createOrder = async (req, res, next) => {
       order.paymentReference = chargeRes.data.reference;
       await order.save();
 
+      console.error(...)
+
       return res.status(201).json({
         message: "Approve the payment prompt sent to your phone to complete this order.",
         order,
