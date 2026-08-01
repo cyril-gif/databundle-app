@@ -11,7 +11,7 @@ function renderNav(activePage) {
   navEl.innerHTML = `
     <nav class="navbar">
       <div class="container">
-        <a href="index.html" class="logo">Ancestor<span>Data</span>Hub</a>
+        <a href="index.html" class="logo">Ancestor<span>Data</span></a>
         <ul class="nav-links" id="navLinks">
           <li><a href="index.html" class="${activePage === "home" ? "active" : ""}">Home</a></li>
           <li><a href="buy.html" class="${activePage === "buy" ? "active" : ""}">Buy Data</a></li>
@@ -23,7 +23,7 @@ function renderNav(activePage) {
             token
               ? `<span class="hint" style="margin-right:4px;">Hi, ${userName || "there"}</span>
                  <button class="btn btn-outline" onclick="logout()">Sign Out</button>`
-              : 
+              : `<a href="signin.html" class="btn btn-outline">Sign In</a>
                 <a href="buy.html" class="btn btn-primary">Buy Data</a>`
                  
           }
