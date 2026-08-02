@@ -108,24 +108,34 @@ export const fulfillOrder = async (order) => {
 
     order.providerOrderId = String(placeRes.order_id);
     await order.save();
+  } catch (err) {
+    // The order was genuinely never placed with iDataGH — this is a real failure.
+    // The customer has already paid via Paystack, so this means a manual refund
+    // or retry is owed. Check the admin dashboard for orders stuck here.
+    order.status = "failed";
+    await order.save();
+    console.error(`iDataGH order placement failed for order ${order.reference}: ${err.message}`);
+    return order;
+  }
 
-    // iDataGH orders can be "Pending" before they finish, so do one immediate
-    // status check. If it's not done yet, leave the order as "processing" —
-    // call reconcilePendingOrders() (see below) on a schedule to catch up later.
-    const statusRes = await getOrderStatus(placeRes.order_id);
+  // The order WAS placed successfully at this point. Now try one immediate status
+  // check as a bonus — but a failure here must NOT undo a real success. If this
+  // check fails or the order is still "Pending", just leave it as "processing";
+  // reconcilePendingOrders() will catch up on it shortly after.
+  try {
+    const statusRes = await getOrderStatus(order.providerOrderId);
     if (statusRes.order_status === "Completed") {
       order.status = "delivered";
       order.deliveredAt = new Date();
+      await order.save();
+    } else if (statusRes.order_status === "Failed") {
+      order.status = "failed";
+      await order.save();
     }
-    await order.save();
+    // Otherwise (e.g. "Pending") — leave as "processing" and let reconcile catch it.
   } catch (err) {
-    // Covers both a failed order placement and an insufficient iDataGH wallet
-    // balance. The customer has already paid via Paystack at this point, so a
-    // failure here means you owe them a manual refund or retry — check the
-    // order's providerOrderId (will be null) to spot these in the admin view.
-    order.status = "failed";
-    await order.save();
-    console.error(`iDataGH delivery failed for order ${order.reference}: ${err.message}`);
+    console.error(`iDataGH status check failed for order ${order.reference} (order still placed, left as processing): ${err.message}`);
+    // Do NOT mark as failed here — the order was already placed successfully above.
   }
 
   return order;
