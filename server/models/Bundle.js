@@ -16,8 +16,9 @@ const bundleSchema = new mongoose.Schema(
     stock: { type: Number, default: -1 }, // -1 = unlimited
 
     // Links this bundle to iDataGH's catalog so orders can be placed automatically.
-    providerPackageId: { type: Number, default: null }, // their package_id, for reference
+  providerPackageId: { type: Number, default: null }, // their package_id, for reference
     providerDataSize: { type: Number, required: true }, // GB value sent as pa_data-bundle-packages
+    providerPrice: { type: Number, default: null }, // their raw cost price, before your markup — lets admin change markup instantly without re-syncing
   },
   { timestamps: true }
 );
