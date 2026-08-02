@@ -160,6 +160,8 @@ async function submitOtp() {
 }
 
 function showWaitingState(paymentPhone) {
+  document.getElementById("payFormFields").style.display = "none";
+  document.getElementById("otpBlock").style.display = "none";
   document.getElementById("waitingBlock").style.display = "block";
   document.getElementById("waitingAmount").textContent = `GH₵${state.bundle.price}`;
   document.getElementById("waitingPhone").textContent = paymentPhone;
