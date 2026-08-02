@@ -213,7 +213,12 @@ function renderConfirmation(order) {
   const currentIndex = statusSteps.indexOf(order.status);
 
   document.getElementById("confirmationCard").innerHTML = `
-    <div class="alert alert-success">Order placed successfully!</div>
+    <div style="text-align:center; padding:10px 0 20px;">
+      <div style="width:56px; height:56px; border-radius:50%; background:rgba(0,229,138,0.15); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:var(--accent);">✓</div>
+      <h2 style="color:var(--accent); margin-bottom:6px;">Payment Successful!</h2>
+      <p class="hint">Your order has been placed and your data is on its way.</p>
+    </div>
+
     <p class="hint">Order Reference</p>
     <h3 style="margin-bottom:20px;">${order.reference}</h3>
 
