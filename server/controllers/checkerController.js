@@ -1,9 +1,11 @@
 import CheckerOrder from "../models/CheckerOrder.js";
 import Voucher from "../models/Voucher.js";
+import Settings from "../models/Settings.js";
 import { generateOrderRef } from "../utils/generateRef.js";
 import { initiateMobileMoneyCharge, PAYSTACK_PROVIDER_MAP, submitOtp } from "../utils/paystack.js";
 
-const CHECKER_PRICE = 15; // GH₵ per voucher, adjust to your actual WAEC voucher cost + margin
+// Note: checker price now lives in the Settings collection, adjustable from
+// the Admin dashboard — see getSettings/updateSettings in adminController.js
 
 // @desc Buy a BECE result checker voucher (initiates Paystack Mobile Money charge)
 // @route POST /api/checker/buy
@@ -20,8 +22,9 @@ export const buyVoucher = async (req, res, next) => {
       return res.status(400).json({ message: "Unsupported payment method" });
     }
 
+    const settings = await Settings.getSingleton();
     const qty = Math.max(1, parseInt(quantity) || 1);
-    const amountDue = CHECKER_PRICE * qty;
+    const amountDue = settings.checkerPrice * qty;
 
     const checkerOrder = await CheckerOrder.create({
       reference: generateOrderRef("BECE"),
