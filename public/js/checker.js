@@ -1,10 +1,25 @@
 renderNav("checker");
 renderFooter();
 
-const CHECKER_PRICE = 15;
+let CHECKER_PRICE = 15; // fallback shown before the real price loads below
 let checkerReference = null;
 let checkerPaymentPhone = null;
 let checkerAmountDue = null;
+
+async function loadCheckerPrice() {
+  try {
+    const config = await api.get("/config");
+    if (config.checkerPrice) {
+      CHECKER_PRICE = config.checkerPrice;
+      const qty = Math.max(1, parseInt(document.getElementById("quantity").value) || 1);
+      document.getElementById("amountDue").textContent = `GH₵${CHECKER_PRICE * qty}`;
+    }
+  } catch (err) {
+    // Silently keep the fallback price if this fails — the backend still
+    // charges the correct authoritative amount regardless of what's shown here.
+  }
+}
+loadCheckerPrice();
 
 function showAlert(message, type = "error") {
   const box = document.getElementById("alertBox");
