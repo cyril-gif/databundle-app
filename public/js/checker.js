@@ -83,6 +83,8 @@ async function submitOtp() {
 }
 
 function showCheckerWaitingState() {
+  document.getElementById("checkerFormFields").style.display = "none";
+  document.getElementById("otpBlock").style.display = "none";
   document.getElementById("waitingBlock").style.display = "block";
   document.getElementById("waitingAmount").textContent = `GH₵${checkerAmountDue}`;
   document.getElementById("waitingPhone").textContent = checkerPaymentPhone;
