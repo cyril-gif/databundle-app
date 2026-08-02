@@ -141,7 +141,11 @@ function renderVoucher(order) {
   const resultCard = document.getElementById("resultCard");
   resultCard.style.display = "block";
   resultCard.innerHTML = `
-    <div class="alert alert-success">Payment confirmed! Here is your voucher.</div>
+    <div style="text-align:center; padding:10px 0 20px;">
+      <div style="width:56px; height:56px; border-radius:50%; background:rgba(0,229,138,0.15); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:var(--accent);">✓</div>
+      <h2 style="color:var(--accent); margin-bottom:6px;">Payment Successful!</h2>
+      <p class="hint">Your voucher is ready below.</p>
+    </div>
     <div class="summary-row"><span>Serial Number</span><b>${order.voucher.serial}</b></div>
     <div class="summary-row"><span>PIN</span><b>${order.voucher.pin}</b></div>
     <p class="hint" style="margin-top:14px;">Visit the official WAEC results checker portal, enter your Index Number, Year, Serial Number and PIN above to view your BECE result.</p>
