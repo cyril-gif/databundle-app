@@ -20,7 +20,9 @@ function switchTab(tab) {
   });
   document.getElementById("ordersTab").style.display = tab === "orders" ? "block" : "none";
   document.getElementById("vouchersTab").style.display = tab === "vouchers" ? "block" : "none";
+  document.getElementById("settingsTab").style.display = tab === "settings" ? "block" : "none";
   if (tab === "vouchers") loadVoucherStock();
+  if (tab === "settings") loadSettings();
 }
 
 // --- Wallet ---
@@ -165,3 +167,56 @@ async function uploadVouchers() {
 // Init
 loadWallet();
 loadOrders();
+
+// --- Settings ---
+async function loadSettings() {
+  try {
+    const settings = await api.get("/admin/settings");
+    document.getElementById("markupInput").value = settings.markupPercent;
+    document.getElementById("checkerPriceInput").value = settings.checkerPrice;
+  } catch (err) {
+    showAlert(err.message);
+  }
+}
+
+async function saveMarkup() {
+  const markupPercent = parseFloat(document.getElementById("markupInput").value);
+  if (isNaN(markupPercent) || markupPercent < 0) {
+    return showAlert("Enter a valid markup percentage");
+  }
+
+  const btn = document.getElementById("saveMarkupBtn");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Applying…`;
+
+  try {
+    const res = await api.put("/admin/settings", { markupPercent });
+    showAlert(`Markup updated to ${markupPercent}% — ${res.bundlesUpdated} bundle prices recalculated.`, "success");
+  } catch (err) {
+    showAlert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Save & Apply to All Bundles";
+  }
+}
+
+async function saveCheckerPrice() {
+  const checkerPrice = parseFloat(document.getElementById("checkerPriceInput").value);
+  if (isNaN(checkerPrice) || checkerPrice < 0) {
+    return showAlert("Enter a valid checker price");
+  }
+
+  const btn = document.getElementById("saveCheckerPriceBtn");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Saving…`;
+
+  try {
+    await api.put("/admin/settings", { checkerPrice });
+    showAlert(`Checker price updated to GH₵${checkerPrice}`, "success");
+  } catch (err) {
+    showAlert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Save";
+  }
+}
