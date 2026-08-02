@@ -40,6 +40,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="orders" onclick="switchTab('orders')">Orders</button>
       <button class="tab-btn" data-tab="vouchers" onclick="switchTab('vouchers')">BECE Vouchers</button>
+      <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">Pricing Settings</button>
     </div>
 
     <!-- Orders tab -->
@@ -99,6 +100,30 @@
           <p class="hint">Paste serial,pin pairs — one voucher per line, comma-separated.</p>
         </div>
         <button class="btn btn-primary" id="uploadVoucherBtn" onclick="uploadVouchers()">Upload Vouchers</button>
+      </div>
+    </div>
+
+    <!-- Settings tab -->
+    <div id="settingsTab" style="display:none;">
+      <div class="grid grid-3" style="margin-bottom:20px;">
+        <div class="card">
+          <h3 style="margin-bottom:6px;">Data Bundle Markup</h3>
+          <div class="form-group">
+            <label>Markup % (added on top of iDataGH's cost price)</label>
+            <input type="number" id="markupInput" step="0.1" min="0" placeholder="e.g. 8">
+          </div>
+          <button class="btn btn-primary" id="saveMarkupBtn" onclick="saveMarkup()">Save & Apply to All Bundles</button>
+          <p class="hint" style="margin-top:10px;">Changing this instantly recalculates every existing bundle's price — no need to re-sync.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:6px;">BECE Checker Price</h3>
+          <div class="form-group">
+            <label>Price per voucher (GH₵)</label>
+            <input type="number" id="checkerPriceInput" step="0.5" min="0" placeholder="e.g. 15">
+          </div>
+          <button class="btn btn-primary" id="saveCheckerPriceBtn" onclick="saveCheckerPrice()">Save</button>
+          <p class="hint" style="margin-top:10px;">Takes effect on the next voucher purchase — no redeploy needed.</p>
+        </div>
       </div>
     </div>
 
