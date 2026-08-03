@@ -62,7 +62,7 @@ function renderFooter() {
           <li><a href="#">About Us</a></li>
           <li><a href="#">Terms of Service</a></li>
           <li><a href="#">Refund Policy</a></li>
-          <li><a href="https://wa.me/233000000000" target="_blank">WhatsApp Support</a></li>
+          <li><a href="https://wa.me/233554320613" target="_blank">WhatsApp Support</a></li>
         </ul>
       </div>
       <div class="container" style="margin-top:24px; color:var(--text-dim);">
