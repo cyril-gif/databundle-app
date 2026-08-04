@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 // Pool of BECE result checker PINs (admin-loaded stock)
 const voucherSchema = new mongoose.Schema(
   {
-    examType: { type: String, enum: ["BECE"], default: "BECE" },
+    examType: { type: String, enum: ["BECE", "WASSCE", "PRIVATE"], required: true },
     year: { type: Number, required: true },
     serial: { type: String, required: true },
     pin: { type: String, required: true },
