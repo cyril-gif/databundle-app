@@ -1,107 +1,1013 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BECE Result Checker | AncestorData</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>BECE Result Checker | AncestorDataHub</title>
+    <meta name="description" content="Buy BECE result checker vouchers instantly. Get your serial number and PIN via SMS. Secure payment with Mobile Money or Card via Paystack.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Checker page specific styles */
+        .checker-container {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: var(--bg-card, #111827);
+            border: 1px solid var(--border-color, #1e293b);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: var(--accent, #22d3ee);
+        }
+        
+        .card h3 {
+            color: var(--text-primary, #e5e7eb);
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--text-primary, #e5e7eb);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            background: var(--bg-input, #0f172a);
+            border: 1px solid var(--border-color, #1e293b);
+            color: var(--text-primary, #e5e7eb);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent, #22d3ee);
+        }
+        
+        .form-group .hint {
+            margin-top: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary, #9ca3af);
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border-color, #1e293b);
+            color: var(--text-secondary, #9ca3af);
+        }
+        
+        .summary-row b {
+            color: var(--text-primary, #e5e7eb);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent, #22d3ee);
+            color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #67e8f9;
+            transform: scale(1.02);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-success {
+            background: #22c55e;
+            color: #0a0a0a;
+        }
+        
+        .btn-success:hover {
+            background: #4ade80;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--accent, #22d3ee);
+            color: var(--accent, #22d3ee);
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent, #22d3ee);
+            color: #0a0a0a;
+        }
+        
+        .btn-sm {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.85rem;
+        }
+        
+        .text-accent {
+            color: var(--accent, #22d3ee);
+        }
+        .text-muted {
+            color: var(--text-secondary, #9ca3af);
+        }
+        .hint {
+            color: var(--text-secondary, #9ca3af);
+            font-size: 0.85rem;
+        }
+        
+        .alert {
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            display: block;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+            display: block;
+        }
+        
+        .alert-info {
+            background: rgba(34, 211, 238, 0.15);
+            border: 1px solid #22d3ee;
+            color: #22d3ee;
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid var(--border-color, #1e293b);
+            border-top: 3px solid var(--accent, #22d3ee);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Voucher result display */
+        .voucher-details {
+            background: rgba(34, 211, 238, 0.05);
+            border: 1px solid var(--accent, #22d3ee);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+        }
+        
+        .voucher-details .voucher-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.1);
+        }
+        
+        .voucher-details .voucher-item:last-child {
+            border-bottom: none;
+        }
+        
+        .voucher-details .voucher-label {
+            color: var(--text-secondary, #9ca3af);
+        }
+        
+        .voucher-details .voucher-value {
+            font-weight: 700;
+            color: var(--text-primary, #e5e7eb);
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+        
+        .voucher-details .voucher-value.pin {
+            color: var(--accent, #22d3ee);
+            font-size: 1.1rem;
+        }
+        
+        .result-display {
+            background: rgba(34, 197, 94, 0.05);
+            border: 1px solid #22c55e;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+        }
+        
+        .result-display .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.1);
+        }
+        
+        .result-display .result-row:last-child {
+            border-bottom: none;
+        }
+        
+        .result-display .grade {
+            font-weight: 700;
+            color: var(--accent, #22d3ee);
+        }
+        
+        .result-display .aggregate {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #22c55e;
+        }
+        
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+        
+        .payment-option {
+            background: var(--bg-card, #111827);
+            border: 2px solid var(--border-color, #1e293b);
+            border-radius: 12px;
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--accent, #22d3ee);
+        }
+        
+        .payment-option.active {
+            border-color: var(--accent, #22d3ee);
+            background: rgba(34, 211, 238, 0.05);
+        }
+        
+        .payment-option i {
+            font-size: 1.3rem;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        
+        .payment-option .label {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .paystack-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent, #22d3ee);
+            color: #0a0a0a;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .how-it-works {
+            background: rgba(34, 211, 238, 0.03);
+            border-left: 3px solid var(--accent, #22d3ee);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .how-it-works .step {
+            display: flex;
+            gap: 0.8rem;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .how-it-works .step:last-child {
+            margin-bottom: 0;
+        }
+        
+        .how-it-works .step-num {
+            background: var(--accent, #22d3ee);
+            color: #0a0a0a;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .how-it-works .step-text {
+            color: var(--text-secondary, #9ca3af);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 480px) {
+            .payment-options {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 1rem;
+            }
+            .checker-container {
+                padding: 0 0.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
+<!-- NAVBAR -->
 <div id="navbar"></div>
 
+<!-- MAIN CONTENT -->
 <section class="section">
-  <div class="container" style="max-width:600px;">
-    <h1 class="section-title">BECE Result Checker</h1>
-    <p class="section-subtitle">Buy a checker voucher and view your result in minutes</p>
+    <div class="container checker-container">
+        <h1 class="section-title" style="text-align:center;">
+            <i class="fas fa-graduation-cap text-accent"></i> BECE Result Checker
+        </h1>
+        <p class="section-subtitle" style="text-align:center;">Buy a checker voucher and view your result in minutes</p>
 
-    <div id="alertBox"></div>
+        <!-- Alert Box -->
+        <div id="alertBox"></div>
 
-    <div class="card" style="margin-bottom:24px;">
-      <p class="hint" style="margin-bottom:10px;">HOW IT WORKS</p>
-      <p>1. Buy a checker voucher via Mobile Money.<br>
-         2. We instantly issue you a Serial Number and PIN.<br>
-         3. Use the Serial Number and PIN on the official WAEC results portal to view your result.</p>
-      <p class="hint" style="margin-top:12px;">
-        AncestorData is an independent voucher facilitation service and is not affiliated with WAEC.
-      </p>
+        <!-- How It Works -->
+        <div class="how-it-works">
+            <p style="font-weight:600; color:var(--text-primary); margin-bottom:0.5rem;">
+                <i class="fas fa-info-circle text-accent"></i> How It Works
+            </p>
+            <div class="step">
+                <span class="step-num">1</span>
+                <span class="step-text">Buy a checker voucher via Paystack (MoMo/Card)</span>
+            </div>
+            <div class="step">
+                <span class="step-num">2</span>
+                <span class="step-text">We instantly issue you a Serial Number and PIN</span>
+            </div>
+            <div class="step">
+                <span class="step-num">3</span>
+                <span class="step-text">Use the Serial Number and PIN on the WAEC portal</span>
+            </div>
+            <div style="margin-top:0.8rem; font-size:0.8rem; color:var(--text-secondary);">
+                <i class="fas fa-shield-alt" style="color:var(--accent);"></i>
+                AncestorData is an independent voucher facilitation service and is not affiliated with WAEC.
+            </div>
+        </div>
+
+        <!-- Buy Voucher Form -->
+        <div class="card" id="buyForm">
+            <h3><i class="fas fa-ticket-alt text-accent"></i> Buy a Checker Voucher</h3>
+            <p class="hint" style="margin-bottom:1rem;">Each voucher costs <strong style="color:var(--accent);">GH₵ 5</strong></p>
+
+            <div id="checkerFormFields">
+                <div class="form-group">
+                    <label>Exam Year</label>
+                    <select id="examYear">
+                        <option value="2026">2026</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Vouchers</label>
+                    <input type="number" id="quantity" value="1" min="1" max="10">
+                    <p class="hint">Buy multiple vouchers for friends or family</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Full Name</label>
+                    <input type="text" id="buyerName" placeholder="e.g. Kwame Mensah">
+                </div>
+
+                <div class="form-group">
+                    <label>Your Email Address</label>
+                    <input type="email" id="buyerEmail" placeholder="e.g. kwame@email.com">
+                    <p class="hint">We'll send your receipt here</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Phone Number (for delivery of PIN)</label>
+                    <input type="tel" id="buyerPhone" placeholder="e.g. 0541234567" maxlength="10">
+                    <p class="hint">We'll send your voucher details via SMS</p>
+                </div>
+
+                <!-- Payment Options -->
+                <div class="payment-options">
+                    <div class="payment-option active" data-method="paystack" onclick="selectPayment('paystack')">
+                        <i class="fas fa-credit-card" style="color:var(--accent);"></i>
+                        <div class="label">Pay with Card/MoMo</div>
+                        <p class="hint" style="font-size:0.65rem;">Paystack • Secure</p>
+                    </div>
+                    <div class="payment-option" data-method="manual" onclick="selectPayment('manual')">
+                        <i class="fas fa-mobile-alt" style="color:#f59e0b;"></i>
+                        <div class="label">Manual MoMo</div>
+                        <p class="hint" style="font-size:0.65rem;">Direct Mobile Money</p>
+                    </div>
+                </div>
+
+                <!-- Paystack Payment -->
+                <div id="paystackPayment" class="card" style="background:rgba(34,211,238,0.03); border-color:var(--accent); margin-top:0.5rem;">
+                    <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem; flex-wrap:wrap;">
+                        <span class="paystack-badge">
+                            <i class="fas fa-lock"></i> Secure
+                        </span>
+                        <span style="font-size:0.85rem; color:var(--text-secondary);">
+                            Accepts: MoMo • Cards • Bank Transfer
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pay with</label>
+                        <select id="paystackChannel">
+                            <option value="">Recommended: Mobile Money</option>
+                            <option value="mobile_money">MTN MoMo</option>
+                            <option value="mobile_money">Telecel Cash</option>
+                            <option value="mobile_money">AirtelTigo Money</option>
+                            <option value="card">Debit/Credit Card</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-block" id="paystackPayBtn" onclick="initiatePaystackVoucherPayment()">
+                        <i class="fas fa-credit-card"></i> Pay with Paystack
+                    </button>
+                </div>
+
+                <!-- Manual MoMo Payment -->
+                <div id="manualPayment" style="display:none; margin-top:0.5rem;">
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="paymentMethod">
+                            <option value="MTN MoMo">MTN MoMo</option>
+                            <option value="Telecel Cash">Telecel Cash</option>
+                            <option value="AirtelTigo Money">AirtelTigo Money</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Money Number to Pay From</label>
+                        <input type="tel" id="paymentPhone" placeholder="e.g. 0541234567" maxlength="10">
+                    </div>
+                </div>
+
+                <div class="summary-row" style="margin-top:1rem;">
+                    <span>Amount Due</span>
+                    <b id="amountDue">GH₵ 5.00</b>
+                </div>
+
+                <button class="btn btn-primary btn-block" id="buyBtn" style="margin-top:1rem;" onclick="handleBuyVoucher()">
+                    <i class="fas fa-shopping-cart"></i> Pay & Get Voucher
+                </button>
+            </div>
+
+            <!-- Waiting Block (for manual MoMo) -->
+            <div id="waitingBlock" style="display:none; text-align:center; padding:1rem 0;">
+                <div class="spinner" style="width:32px; height:32px; margin:0 auto 16px;"></div>
+                <h3 style="margin-bottom:10px;">Approve the payment on your phone</h3>
+                <p class="hint">
+                    We sent a payment prompt of <b id="waitingAmount" style="color:var(--text);"></b>
+                    to <b id="waitingPhone" style="color:var(--text);"></b>. Enter your Mobile Money PIN there to complete this purchase.
+                </p>
+                <p class="hint" style="margin-top:14px;">This page will update automatically once payment is confirmed.</p>
+            </div>
+        </div>
+
+        <!-- Voucher Display -->
+        <div class="card" id="voucherCard" style="display:none; border-color:var(--accent);">
+            <h3 style="color:var(--accent);">
+                <i class="fas fa-check-circle"></i> Voucher Purchased!
+            </h3>
+            <div class="voucher-details" id="voucherDetails">
+                <!-- Voucher details will be inserted here -->
+            </div>
+            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-sm btn-outline" onclick="copyVoucher()">
+                    <i class="fas fa-copy"></i> Copy Details
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="showCheckResultForm()">
+                    <i class="fas fa-search"></i> Check Result
+                </button>
+            </div>
+        </div>
+
+        <!-- Check Result Form -->
+        <div class="card" id="resultForm" style="display:none; border-color:#22c55e;">
+            <h3><i class="fas fa-search text-accent"></i> Check BECE Result</h3>
+            <p class="hint" style="margin-bottom:1rem;">Enter the voucher details and candidate information</p>
+            
+            <div class="form-group">
+                <label>Serial Number</label>
+                <input type="text" id="resultSerial" placeholder="e.g. BECE-2025-001234">
+            </div>
+            <div class="form-group">
+                <label>PIN</label>
+                <input type="text" id="resultPin" placeholder="e.g. 1234-5678-9012">
+            </div>
+            <div class="form-group">
+                <label>Index Number</label>
+                <input type="text" id="resultIndex" placeholder="e.g. 1234567890">
+            </div>
+            <div class="form-group">
+                <label>Year</label>
+                <select id="resultYear">
+                    <option value="2026">2026</option>
+                    <option value="2025" selected>2025</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>School (Optional)</label>
+                <input type="text" id="resultSchool" placeholder="e.g. Ghana Secondary School">
+            </div>
+            
+            <button class="btn btn-primary btn-block" onclick="checkResult()">
+                <i class="fas fa-search"></i> Check Result
+            </button>
+        </div>
+
+        <!-- Result Display -->
+        <div class="card" id="resultCard" style="display:none; border-color:#22c55e;">
+            <h3 style="color:#22c55e;">
+                <i class="fas fa-file-alt"></i> Result Slip
+            </h3>
+            <div id="resultDisplay"></div>
+        </div>
     </div>
-
-    <!-- Buy voucher form -->
-    <div class="card" id="buyForm">
-      <h3 style="margin-bottom:18px;">Buy a Checker Voucher</h3>
-
-      <div id="checkerFormFields">
-        <div class="form-group">
-          <label>Exam Year</label>
-          <select id="examYear">
-            <option value="2026">2026</option>
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Number of Vouchers</label>
-          <input type="number" id="quantity" value="1" min="1" max="10">
-        </div>
-
-        <div class="form-group">
-          <label>Your Phone Number (for delivery of PIN)</label>
-          <input type="tel" id="buyerPhone" placeholder="e.g. 0541234567" maxlength="10">
-        </div>
-
-        <div class="form-group">
-          <label>Payment Method</label>
-          <select id="paymentMethod">
-            <option value="MTN MoMo">MTN MoMo</option>
-            <option value="Telecel Cash">Telecel Cash</option>
-            <option value="AirtelTigo Money">AirtelTigo Money</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Mobile Money Number to Pay From</label>
-          <input type="tel" id="paymentPhone" placeholder="e.g. 0541234567" maxlength="10">
-        </div>
-
-        <div class="summary-row"><span>Amount Due</span><b id="amountDue">GH₵ 25</b></div>
-
-        <button class="btn btn-primary btn-block" id="buyBtn" style="margin-top:16px;" onclick="buyVoucher()">Pay & Get Voucher</button>
-      </div>
-
-      <div id="otpBlock" style="display:none;">
-        <h3 style="margin-bottom:10px;">Enter the Code Sent to Your Phone</h3>
-        <p class="hint" style="margin-bottom:16px;">Paystack sent a one-time code via SMS to <b id="otpPhone" style="color:var(--text);"></b> to authorize this payment. Enter it below.</p>
-        <div class="form-group">
-          <label>One-Time Code</label>
-          <input type="text" id="otpInput" placeholder="e.g. 123456" maxlength="6" inputmode="numeric">
-        </div>
-        <button class="btn btn-primary btn-block" id="otpBtn" onclick="submitOtp()">Submit Code</button>
-      </div>
-
-      <div id="waitingBlock" style="display:none; text-align:center;">
-        <div class="spinner" style="width:32px; height:32px; margin:0 auto 16px; color:var(--accent);"></div>
-        <h3 style="margin-bottom:10px;">Approve the payment on your phone</h3>
-        <p class="hint">
-          We sent a payment prompt of <b id="waitingAmount" style="color:var(--text);"></b>
-          to <b id="waitingPhone" style="color:var(--text);"></b>. Enter your Mobile Money PIN there to complete this purchase.
-        </p>
-        <p class="hint" style="margin-top:14px;">This page will update automatically once payment is confirmed.</p>
-      </div>
-    </div>
-
-    <!-- Result display -->
-    <div class="card" id="resultCard" style="display:none; margin-top:24px;"></div>
-
-  </div>
 </section>
 
+<!-- FOOTER -->
 <div id="footer"></div>
 
+<!-- Paystack SDK -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<!-- Custom Scripts -->
 <script src="js/nav.js"></script>
 <script src="js/api.js"></script>
+<script src="js/paystack.js"></script>
 <script src="js/checker.js"></script>
+
+<!-- Inline Script for Checker Page -->
+<script>
+// State
+let voucherData = null;
+let paystackInitialized = false;
+let currentPaymentMethod = 'paystack';
+
+// Initialize Paystack
+async function initPaystack() {
+    try {
+        if (typeof paystack !== 'undefined' && paystack.isInitialized) {
+            return true;
+        }
+        await loadPaystackScript();
+        const result = await paystack.init();
+        paystackInitialized = result;
+        return result;
+    } catch (error) {
+        console.error('Paystack init error:', error);
+        return false;
+    }
+}
+
+// Select payment method
+function selectPayment(method) {
+    currentPaymentMethod = method;
+    document.querySelectorAll('.payment-option').forEach(el => {
+        el.classList.toggle('active', el.dataset.method === method);
+    });
+    
+    document.getElementById('paystackPayment').style.display = method === 'paystack' ? 'block' : 'none';
+    document.getElementById('manualPayment').style.display = method === 'manual' ? 'block' : 'none';
+}
+
+// Handle buy voucher button
+function handleBuyVoucher() {
+    if (currentPaymentMethod === 'paystack') {
+        initiatePaystackVoucherPayment();
+    } else {
+        buyVoucherManual();
+    }
+}
+
+// Initiate Paystack voucher payment
+async function initiatePaystackVoucherPayment() {
+    const btn = document.getElementById('paystackPayBtn');
+    const name = document.getElementById('buyerName').value.trim();
+    const email = document.getElementById('buyerEmail').value.trim();
+    const phone = document.getElementById('buyerPhone').value.trim();
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    
+    if (!name) {
+        showAlert('Please enter your full name', 'error');
+        return;
+    }
+    if (!email || !email.includes('@')) {
+        showAlert('Please enter a valid email address', 'error');
+        return;
+    }
+    if (!phone || phone.length < 10) {
+        showAlert('Please enter a valid phone number (10 digits)', 'error');
+        return;
+    }
+    
+    const amount = 5 * quantity;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing...';
+    
+    try {
+        // Initialize payment on backend
+        const response = await fetch('/api/bece/initialize-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                customerName: name,
+                customerEmail: email,
+                customerPhone: phone,
+                quantity: quantity,
+                amount: amount
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Payment initialization failed');
+        }
+        
+        // Open Paystack popup
+        const handler = PaystackPop.setup({
+            key: paystack.publicKey,
+            email: email,
+            amount: amount * 100,
+            ref: data.data.payment.reference,
+            metadata: {
+                orderNumber: data.data.order.orderNumber,
+                customerName: name,
+                customerPhone: phone,
+                orderType: 'bece_voucher',
+                quantity: quantity
+            },
+            callback: function(response) {
+                verifyVoucherPayment(response.reference);
+            },
+            onClose: function() {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack';
+            }
+        });
+        
+        handler.openIframe();
+        
+    } catch (error) {
+        showAlert('Payment failed: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack';
+    }
+}
+
+// Verify voucher payment
+async function verifyVoucherPayment(reference) {
+    try {
+        const response = await fetch(`/api/bece/verify-payment/${reference}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Payment verified! Voucher purchased successfully.', 'success');
+            showVoucher(data.data);
+        } else {
+            showAlert('Payment verification failed: ' + (data.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        showAlert('Failed to verify payment: ' + error.message, 'error');
+    }
+}
+
+// Buy voucher manually (fallback)
+async function buyVoucherManual() {
+    const name = document.getElementById('buyerName').value.trim();
+    const email = document.getElementById('buyerEmail').value.trim();
+    const phone = document.getElementById('buyerPhone').value.trim();
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const paymentPhone = document.getElementById('paymentPhone').value.trim();
+    
+    if (!name) {
+        showAlert('Please enter your full name', 'error');
+        return;
+    }
+    if (!email || !email.includes('@')) {
+        showAlert('Please enter a valid email address', 'error');
+        return;
+    }
+    if (!phone || phone.length < 10) {
+        showAlert('Please enter a valid phone number', 'error');
+        return;
+    }
+    if (!paymentPhone || paymentPhone.length < 10) {
+        showAlert('Please enter a valid payment phone number', 'error');
+        return;
+    }
+    
+    const btn = document.getElementById('buyBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    try {
+        const response = await fetch('/api/bece/purchase-voucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                customerName: name,
+                customerEmail: email,
+                customerPhone: phone,
+                quantity: quantity,
+                paymentMethod: paymentMethod,
+                paymentPhone: paymentPhone
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Voucher purchased successfully!', 'success');
+            showVoucher(data.data);
+        } else {
+            showAlert('Purchase failed: ' + (data.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        showAlert('Failed to purchase voucher: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Pay & Get Voucher';
+    }
+}
+
+// Show voucher details
+function showVoucher(data) {
+    voucherData = data;
+    
+    document.getElementById('voucherCard').style.display = 'block';
+    document.getElementById('voucherDetails').innerHTML = `
+        <div class="voucher-item">
+            <span class="voucher-label">Order Number</span>
+            <span class="voucher-value">${data.orderNumber}</span>
+        </div>
+        <div class="voucher-item">
+            <span class="voucher-label">Serial Number</span>
+            <span class="voucher-value">${data.serialNumber}</span>
+        </div>
+        <div class="voucher-item">
+            <span class="voucher-label">PIN</span>
+            <span class="voucher-value pin">${data.pin}</span>
+        </div>
+        <div style="margin-top:0.8rem; padding-top:0.8rem; border-top:1px solid rgba(34,211,238,0.1);">
+            <p style="color:var(--text-secondary); font-size:0.85rem;">
+                <i class="fas fa-info-circle" style="color:var(--accent);"></i>
+                ${data.instructions || 'Use this voucher on the WAEC portal to check your BECE result.'}
+            </p>
+        </div>
+    `;
+    
+    // Auto-fill result form with voucher details
+    document.getElementById('resultSerial').value = data.serialNumber;
+    document.getElementById('resultPin').value = data.pin;
+    
+    // Scroll to voucher
+    document.getElementById('voucherCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Check result
+async function checkResult() {
+    const serial = document.getElementById('resultSerial').value.trim();
+    const pin = document.getElementById('resultPin').value.trim();
+    const index = document.getElementById('resultIndex').value.trim();
+    const year = document.getElementById('resultYear').value;
+    const school = document.getElementById('resultSchool').value.trim();
+    
+    if (!serial || !pin) {
+        showAlert('Please enter the serial number and PIN', 'error');
+        return;
+    }
+    if (!index) {
+        showAlert('Please enter the candidate index number', 'error');
+        return;
+    }
+    if (!year) {
+        showAlert('Please select the exam year', 'error');
+        return;
+    }
+    
+    const btn = document.querySelector('#resultForm .btn-primary');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+    
+    try {
+        const response = await fetch('/api/bece/check-result', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                serialNumber: serial,
+                pin: pin,
+                indexNumber: index,
+                year: year,
+                school: school
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showResult(data.data);
+            showAlert('Result retrieved successfully!', 'success');
+        } else {
+            showAlert('Failed to retrieve result: ' + (data.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        showAlert('Error: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-search"></i> Check Result';
+    }
+}
+
+// Show result
+function showResult(data) {
+    const card = document.getElementById('resultCard');
+    const display = document.getElementById('resultDisplay');
+    
+    card.style.display = 'block';
+    
+    let gradesHtml = '';
+    if (data.grades) {
+        for (const [subject, grade] of Object.entries(data.grades)) {
+            gradesHtml += `
+                <div class="result-row">
+                    <span>${subject}</span>
+                    <span class="grade">${grade}</span>
+                </div>
+            `;
+        }
+    }
+    
+    display.innerHTML = `
+        <div style="margin-bottom:0.8rem;">
+            <div class="result-row"><span>Student</span><b>${data.studentName || 'N/A'}</b></div>
+            <div class="result-row"><span>Index Number</span><b>${data.indexNumber || 'N/A'}</b></div>
+            <div class="result-row"><span>Year</span><b>${data.year || 'N/A'}</b></div>
+            <div class="result-row"><span>School</span><b>${data.school || 'N/A'}</b></div>
+        </div>
+        <div style="border-top:1px solid rgba(34,197,94,0.1); padding-top:0.8rem;">
+            <p style="font-weight:600; margin-bottom:0.5rem;">Grades</p>
+            ${gradesHtml}
+        </div>
+        ${data.aggregate ? `
+            <div style="border-top:1px solid rgba(34,197,94,0.1); padding-top:0.8rem; margin-top:0.8rem; text-align:center;">
+                <span style="font-weight:600;">Aggregate</span>
+                <span class="aggregate">${data.aggregate}</span>
+            </div>
+        ` : ''}
+        <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-outline" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="downloadResult()">
+                <i class="fas fa-download"></i> Download
+            </button>
+        </div>
+    `;
+    
+    card.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Show result form
+function showCheckResultForm() {
+    document.getElementById('resultForm').style.display = 'block';
+    document.getElementById('resultForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Copy voucher details
+function copyVoucher() {
+    const details = document.getElementById('voucherDetails');
+    const text = details.textContent.trim();
+    navigator.clipboard.writeText(text).then(() => {
+        showAlert('Voucher details copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback
+        const range = document.createRange();
+        range.selectNode(details);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        showAlert('Voucher details copied!', 'success');
+    });
+}
+
+// Download result (mock)
+function downloadResult() {
+    showAlert('Result download feature coming soon. For now, use Print to save as PDF.', 'info');
+}
+
+// Show alert
+function showAlert(message, type = 'info') {
+    const box = document.getElementById('alertBox');
+    box.className = `alert alert-${type}`;
+    box.textContent = message;
+    box.style.display = 'block';
+    
+    setTimeout(() => {
+        box.style.display = 'none';
+    }, 8000);
+}
+
+// Load Paystack script
+function loadPaystackScript() {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector('script[src*="paystack"]')) {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://js.paystack.co/v1/inline.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Format phone numbers
+document.querySelectorAll('input[type="tel"]').forEach(input => {
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 10);
+    });
+});
+
+// Update amount when quantity changes
+document.getElementById('quantity').addEventListener('change', function() {
+    const qty = parseInt(this.value) || 1;
+    const amount = qty * 5;
+    document.getElementById('amountDue').textContent = `GH₵ ${amount.toFixed(2)}`;
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    initPaystack();
+    
+    // Set initial amount
+    document.getElementById('amountDue').textContent = 'GH₵ 5.00';
+});
+</script>
+
 </body>
 </html>
