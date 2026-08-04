@@ -2,22 +2,22 @@ import Order from "../models/Order.js";
 import Bundle from "../models/Bundle.js";
 import Referral from "../models/Referral.js";
 import { generateOrderRef } from "../utils/generateRef.js";
-import { initiateMobileMoneyCharge, PAYSTACK_PROVIDER_MAP, submitOtp } from "../utils/paystack.js";
 import { placeOrder, getOrderStatus } from "../utils/idatagh.js";
 
-// @desc Create a new data order and initiate a Paystack Mobile Money charge
+// @desc Create a new pending order. Payment itself is handled entirely by the
+// Paystack Popup on the frontend (Inline.js) — this just reserves the order so
+// the popup has a reference/amount to attach the payment to. Fulfillment only
+// ever happens via the Paystack webhook once payment is confirmed (fulfillOrder).
 // @route POST /api/orders
 export const createOrder = async (req, res, next) => {
   try {
-    const { bundleId, deliveryPhone, paymentPhone, paymentMethod } = req.body;
+    const { bundleId, deliveryPhone } = req.body;
 
-    if (!bundleId || !deliveryPhone || !paymentPhone || !paymentMethod) {
-      return res.status(400).json({ message: "All order fields are required" });
+    if (!bundleId || !deliveryPhone) {
+      return res.status(400).json({ message: "Bundle and delivery number are required" });
     }
-
-    const provider = PAYSTACK_PROVIDER_MAP[paymentMethod];
-    if (!provider) {
-      return res.status(400).json({ message: "Unsupported payment method" });
+    if (!/^0\d{9}$/.test(deliveryPhone)) {
+      return res.status(400).json({ message: "Enter a valid 10-digit Ghanaian phone number" });
     }
 
     const bundle = await Bundle.findById(bundleId);
@@ -46,34 +46,12 @@ export const createOrder = async (req, res, next) => {
       bundleSize: bundle.size,
       price: bundle.price,
       deliveryPhone,
-      paymentPhone,
-      paymentMethod,
+      paymentPhone: deliveryPhone,
+      paymentMethod: "Paystack Popup",
       status: "pending_payment",
     });
 
-    try {
-      const chargeRes = await initiateMobileMoneyCharge({
-        amountPesewas: Math.round(bundle.price * 100),
-        email: `${paymentPhone.replace(/\D/g, "")}@${process.env.CUSTOMER_EMAIL_DOMAIN || "customer.databundlegh.com"}`,
-        phone: paymentPhone,
-        provider,
-        reference: order.reference,
-      });
-
-      order.paymentReference = chargeRes.data.reference;
-      await order.save();
-
-      return res.status(201).json({
-        message: "Approve the payment prompt sent to your phone to complete this order.",
-        order,
-        paystackStatus: chargeRes.data.status, // expect "pay_offline" for Ghana MoMo
-      });
-    } catch (paymentErr) {
-      order.status = "failed";
-      await order.save();
-      console.error(`Paystack charge failed for order ${order.reference} (phone: ${paymentPhone}):`, paymentErr.message);
-      return res.status(502).json({ message: `Payment could not be started: ${paymentErr.message}` });
-    }
+    res.status(201).json({ order });
   } catch (err) {
     next(err);
   }
@@ -182,36 +160,9 @@ export const reconcilePendingOrders = async () => {
   return results;
 };
 
-/**
- * Some Mobile Money charges require the customer to enter an OTP (sent via SMS)
- * before the payment can proceed. The frontend calls this once the customer
- * types it in. This does NOT confirm the payment itself — that still only
- * happens via the Paystack webhook once the charge fully succeeds.
- * @route POST /api/orders/:reference/submit-otp
- */
-export const submitOrderOtp = async (req, res, next) => {
-  try {
-    const { otp } = req.body;
-    if (!otp) return res.status(400).json({ message: "OTP is required" });
-
-    const order = await Order.findOne({ reference: req.params.reference });
-    if (!order) return res.status(404).json({ message: "Order not found" });
-    if (!order.paymentReference) {
-      return res.status(400).json({ message: "No pending payment found for this order" });
-    }
-
-    const result = await submitOtp({ otp, reference: order.paymentReference });
-    res.json({ message: "OTP submitted, waiting for payment confirmation", status: result.data.status });
-  } catch (err) {
-    // Wrong/expired OTPs come back as a normal error from Paystack, not a crash
-    res.status(400).json({ message: err.message });
-  }
-};
-
 // @desc DEV-ONLY manual fulfillment trigger. Useful for local testing before your
-// webhook URL is publicly reachable (e.g. before setting up ngrok). Remove or lock
-// this behind admin auth before going live — real fulfillment must come from the
-// Paystack webhook only, since that's the only source that proves payment happened.
+// webhook URL is publicly reachable. Remove or lock this behind admin auth before
+// going live — real fulfillment must come from the Paystack webhook only.
 // @route POST /api/orders/:reference/dev-confirm
 export const devConfirmOrder = async (req, res, next) => {
   try {
