@@ -1,120 +1,470 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AncestorDataHub | Ghana's Fastest Data Bundles & BECE Result Checker</title>
-<meta name="description" content="Buy cheap MTN, Telecel and AirtelTigo data bundles instantly. Check your BECE results in minutes. Secure Mobile Money payments.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>AncestorDataHub | Ghana's Fastest Data Bundles & BECE Result Checker</title>
+    <meta name="description" content="Buy cheap MTN, Telecel and AirtelTigo data bundles instantly. Check your BECE results in minutes. Secure Mobile Money payments.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Critical styles to prevent flash */
+        .hero {
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: clamp(1.8rem, 5vw, 3.2rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+        .hero h1 span {
+            color: var(--accent, #22d3ee);
+        }
+        .hero p {
+            color: var(--text-secondary, #9ca3af);
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            font-size: 1.05rem;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .badge {
+            background: var(--bg-card, #111827);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid var(--border-color, #1e293b);
+            font-size: 0.85rem;
+            color: var(--text-secondary, #9ca3af);
+        }
+        .badge b {
+            color: var(--text-primary, #e5e7eb);
+        }
+        .section {
+            padding: 3rem 0;
+        }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary, #9ca3af);
+            margin-bottom: 2rem;
+        }
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+        .network-card {
+            background: var(--bg-card, #111827);
+            border: 1px solid var(--border-color, #1e293b);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        .network-card:hover {
+            border-color: var(--accent, #22d3ee);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.1);
+        }
+        .network-card .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin: 0 auto 0.8rem;
+        }
+        .network-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .card {
+            background: var(--bg-card, #111827);
+            border: 1px solid var(--border-color, #1e293b);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: var(--accent, #22d3ee);
+        }
+        .hint {
+            color: var(--text-secondary, #9ca3af);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        .ticker {
+            background: var(--bg-card, #111827);
+            border: 1px solid var(--border-color, #1e293b);
+            border-radius: 40px;
+            padding: 0.6rem 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary, #9ca3af);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .ticker i {
+            color: var(--accent, #22d3ee);
+            margin-right: 0.5rem;
+        }
+        .faq-item {
+            border-bottom: 1px solid var(--border-color, #1e293b);
+            padding: 1rem 0;
+            cursor: pointer;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-item h4 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .faq-item h4 span {
+            color: var(--accent, #22d3ee);
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+        .faq-item.active h4 span {
+            transform: rotate(45deg);
+        }
+        .faq-item p {
+            color: var(--text-secondary, #9ca3af);
+            margin-top: 0.5rem;
+            display: none;
+            line-height: 1.6;
+        }
+        .faq-item.active p {
+            display: block;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--accent, #22d3ee);
+            color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+        }
+        .btn-primary:hover {
+            background: #67e8f9;
+            transform: scale(1.02);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--accent, #22d3ee);
+            color: var(--accent, #22d3ee);
+        }
+        .btn-outline:hover {
+            background: var(--accent, #22d3ee);
+            color: #0a0a0a;
+        }
+        .text-accent {
+            color: var(--accent, #22d3ee);
+        }
+        .text-muted {
+            color: var(--text-secondary, #9ca3af);
+            font-size: 0.9rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* Paystack loading indicator */
+        .paystack-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary, #9ca3af);
+        }
+        .paystack-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .paystack-status .dot.active {
+            background: #22c55e;
+        }
+        .paystack-status .dot.inactive {
+            background: #ef4444;
+        }
+        .paystack-status .dot.loading {
+            background: #f59e0b;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @media (max-width: 768px) {
+            .grid-3, .grid-4 {
+                grid-template-columns: 1fr 1fr;
+            }
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            .hero-actions .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 
+<!-- NAVBAR -->
 <div id="navbar"></div>
 
+<!-- HERO SECTION -->
 <header class="hero">
-  <div class="container">
-    <h1>Ghana's Fastest <span>Data Bundles</span> &amp; BECE Checker</h1>
-    <p>Buy MTN, Telecel and AirtelTigo data in seconds. Check your BECE results instantly. Pay safely with Mobile Money — no account needed.</p>
-    <div class="hero-actions">
-      <a href="buy.html" class="btn btn-primary">Buy Data Now</a>
-      <a href="checker.html" class="btn btn-outline">Check BECE Results</a>
-    </div>
+    <div class="container">
+        <h1>Ghana's Fastest <span>Data Bundles</span> &amp; BECE Checker</h1>
+        <p>Buy MTN, Telecel and AirtelTigo data in seconds. Check your BECE results instantly. Pay safely with Mobile Money or Card — no account needed.</p>
+        <div class="hero-actions">
+            <a href="buy.html" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i> Buy Data Now
+            </a>
+            <a href="checker.html" class="btn btn-outline">
+                <i class="fas fa-graduation-cap"></i> Check BECE Results
+            </a>
+        </div>
 
-    <div class="badges">
-      <div class="badge">⚡ <b>Instant</b>&nbsp;Delivery</div>
-      <div class="badge">🔒 <b>Secure</b>&nbsp;MoMo Payment</div>
-      <div class="badge">🕐 <b>24/7</b>&nbsp;Support</div>
-      <div class="badge">✅ <b>No Account</b>&nbsp;Needed</div>
+        <!-- Paystack Status -->
+        <div class="paystack-status" id="paystackStatus" style="justify-content:center; margin-bottom:1.5rem;">
+            <span class="dot loading" id="paystackDot"></span>
+            <span id="paystackStatusText">Loading payment system…</span>
+        </div>
+
+        <div class="badges">
+            <div class="badge">⚡ <b>Instant</b>&nbsp;Delivery</div>
+            <div class="badge">🔒 <b>Secure</b>&nbsp;MoMo/Card</div>
+            <div class="badge">🕐 <b>24/7</b>&nbsp;Support</div>
+            <div class="badge">✅ <b>No Account</b>&nbsp;Needed</div>
+        </div>
     </div>
-  </div>
 </header>
 
-<section class="section">
-  <div class="container">
-    <div class="ticker" id="activityTicker">Loading recent orders…</div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <h2 class="section-title">Choose Your Network</h2>
-    <p class="section-subtitle">All major Ghanaian networks supported</p>
-    <div class="grid grid-3">
-      <a href="buy.html?network=MTN" class="network-card">
-        <div class="icon" style="background:#ffcc00;"></div>
-        <h3>MTN</h3>
-      </a>
-      <a href="buy.html?network=Telecel" class="network-card">
-        <div class="icon" style="background:#e2001a;"></div>
-        <h3>Telecel</h3>
-      </a>
-      <a href="buy.html?network=AirtelTigo" class="network-card">
-        <div class="icon" style="background:#0072ce;"></div>
-        <h3>AirtelTigo</h3>
-      </a>
+<!-- ACTIVITY TICKER -->
+<section class="section" style="padding: 0.5rem 0 1rem;">
+    <div class="container">
+        <div class="ticker" id="activityTicker">
+            <i class="fas fa-clock"></i> Loading recent orders…
+        </div>
     </div>
-  </div>
 </section>
 
-<section class="section" style="background:var(--bg-elevated);">
-  <div class="container">
-    <h2 class="section-title">How It Works</h2>
-    <p class="section-subtitle">Four simple steps to get your data</p>
-    <div class="grid grid-4">
-      <div class="card">
-        <h3 style="color:var(--accent); font-size:1.5rem;">1</h3>
-        <p style="margin-top:8px; font-weight:600;">Select Network</p>
-        <p class="hint">Pick MTN, Telecel or AirtelTigo</p>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--accent); font-size:1.5rem;">2</h3>
-        <p style="margin-top:8px; font-weight:600;">Choose Bundle</p>
-        <p class="hint">Select your preferred size</p>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--accent); font-size:1.5rem;">3</h3>
-        <p style="margin-top:8px; font-weight:600;">Pay with MoMo</p>
-        <p class="hint">Fast, secure mobile money</p>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--accent); font-size:1.5rem;">4</h3>
-        <p style="margin-top:8px; font-weight:600;">Receive Instantly</p>
-        <p class="hint">Data delivered in minutes</p>
-      </div>
+<!-- NETWORK SELECTION -->
+<section class="section" style="padding-top: 1rem;">
+    <div class="container">
+        <h2 class="section-title">Choose Your Network</h2>
+        <p class="section-subtitle">All major Ghanaian networks supported</p>
+        <div class="grid grid-3">
+            <a href="buy.html?network=MTN" class="network-card">
+                <div class="icon" style="background:#ffcc00; position:relative;">
+                    <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem;font-weight:800;color:#0a0a0a;">M</span>
+                </div>
+                <h3>MTN</h3>
+                <p class="hint">From ₵4.15</p>
+            </a>
+            <a href="buy.html?network=Telecel" class="network-card">
+                <div class="icon" style="background:#e2001a; position:relative;">
+                    <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem;font-weight:800;color:white;">T</span>
+                </div>
+                <h3>Telecel</h3>
+                <p class="hint">From ₵4.00</p>
+            </a>
+            <a href="buy.html?network=AirtelTigo" class="network-card">
+                <div class="icon" style="background:#0072ce; position:relative;">
+                    <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem;font-weight:800;color:white;">A</span>
+                </div>
+                <h3>AirtelTigo</h3>
+                <p class="hint">From ₵3.90</p>
+            </a>
+        </div>
     </div>
-  </div>
 </section>
 
+<!-- HOW IT WORKS -->
+<section class="section" style="background:var(--bg-elevated, #0f0f1a);">
+    <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Four simple steps to get your data</p>
+        <div class="grid grid-4">
+            <div class="card">
+                <div style="background:var(--accent,#22d3ee);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;font-weight:800;color:#0a0a0a;font-size:1.2rem;">1</div>
+                <p style="font-weight:600;">Select Network</p>
+                <p class="hint">Pick MTN, Telecel or AirtelTigo</p>
+            </div>
+            <div class="card">
+                <div style="background:var(--accent,#22d3ee);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;font-weight:800;color:#0a0a0a;font-size:1.2rem;">2</div>
+                <p style="font-weight:600;">Choose Bundle</p>
+                <p class="hint">Select your preferred size</p>
+            </div>
+            <div class="card">
+                <div style="background:var(--accent,#22d3ee);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;font-weight:800;color:#0a0a0a;font-size:1.2rem;">3</div>
+                <p style="font-weight:600;">Pay with MoMo/Card</p>
+                <p class="hint">Fast, secure payment via Paystack</p>
+            </div>
+            <div class="card">
+                <div style="background:var(--accent,#22d3ee);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;font-weight:800;color:#0a0a0a;font-size:1.2rem;">4</div>
+                <p style="font-weight:600;">Receive Instantly</p>
+                <p class="hint">Data delivered in minutes</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ SECTION -->
 <section class="section">
-  <div class="container">
-    <h2 class="section-title">Frequently Asked Questions</h2>
-    <div id="faqList" style="max-width:700px; margin:0 auto;">
-      <div class="faq-item">
-        <h4>How long does delivery take? <span>+</span></h4>
-        <p>Most orders are delivered within 10 minutes. In rare cases of network congestion, it can take up to 24 hours.</p>
-      </div>
-      <div class="faq-item">
-        <h4>What happens if I enter the wrong number? <span>+</span></h4>
-        <p>We are unable to issue refunds for data sent to an incorrect number, so please double-check before confirming your order.</p>
-      </div>
-      <div class="faq-item">
-        <h4>What if my payment fails? <span>+</span></h4>
-        <p>If Mobile Money debits you but your order does not update, contact our WhatsApp support with your order reference and we will resolve it quickly.</p>
-      </div>
-      <div class="faq-item">
-        <h4>Do I need to create an account to buy data? <span>+</span></h4>
-        <p>No. You can buy data as a guest. Creating an account only lets you track order history and earn referral rewards.</p>
-      </div>
+    <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">Everything you need to know</p>
+        <div id="faqList" style="max-width:700px; margin:0 auto;">
+            <div class="faq-item">
+                <h4>How long does delivery take? <span>+</span></h4>
+                <p>Most orders are delivered within 2-5 minutes after payment confirmation. In rare cases of network congestion, it can take up to 10 minutes. If you don't receive your data within 15 minutes, contact our support.</p>
+            </div>
+            <div class="faq-item">
+                <h4>What payment methods are accepted? <span>+</span></h4>
+                <p>We accept all major payment methods through Paystack including: MTN MoMo, Telecel Cash, AirtelTigo Money, all major debit/credit cards, and bank transfers. All payments are securely processed.</p>
+            </div>
+            <div class="faq-item">
+                <h4>What happens if I enter the wrong number? <span>+</span></h4>
+                <p>We are unable to issue refunds for data sent to an incorrect number, so please double-check before confirming your order. Contact support immediately if you realize the mistake.</p>
+            </div>
+            <div class="faq-item">
+                <h4>What if my payment fails? <span>+</span></h4>
+                <p>If you are charged but your order does not update, contact our WhatsApp support with your order reference and we will resolve it quickly. Failed payments are automatically refunded within 24 hours.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Do I need to create an account to buy data? <span>+</span></h4>
+                <p>No. You can buy data as a guest. Creating an account only lets you track order history and earn referral rewards. Sign up is free and takes less than a minute.</p>
+            </div>
+            <div class="faq-item">
+                <h4>How does the BECE result checker work? <span>+</span></h4>
+                <p>Purchase a checker voucher for GH₵ 5 via Paystack. You'll receive a serial number and PIN via SMS. Enter these along with the candidate's index number to view the result. This is a paid facilitation service, not affiliated with WAEC.</p>
+            </div>
+        </div>
     </div>
-  </div>
 </section>
 
+<!-- FOOTER -->
 <div id="footer"></div>
 
+<!-- SCRIPTS -->
+<!-- Paystack SDK -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<!-- Custom Scripts -->
 <script src="js/nav.js"></script>
 <script src="js/api.js"></script>
+<script src="js/paystack.js"></script>
 <script src="js/main.js"></script>
+
+<!-- FAQ Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ accordion
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
+    
+    // Paystack status check
+    async function checkPaystackStatus() {
+        const dot = document.getElementById('paystackDot');
+        const text = document.getElementById('paystackStatusText');
+        
+        try {
+            const response = await fetch('/api/config/public-config');
+            const data = await response.json();
+            
+            if (data.success && data.data.paystackPublicKey) {
+                dot.className = 'dot active';
+                text.textContent = '✅ Secure payments enabled (MoMo/Card)';
+            } else {
+                dot.className = 'dot inactive';
+                text.textContent = '⚠️ Payment system offline - contact support';
+            }
+        } catch (error) {
+            dot.className = 'dot inactive';
+            text.textContent = '⚠️ Payment system unavailable';
+            console.error('Paystack status check failed:', error);
+        }
+    }
+    
+    checkPaystackStatus();
+    
+    // Activity ticker
+    async function updateTicker() {
+        const ticker = document.getElementById('activityTicker');
+        try {
+            const response = await fetch('/api/data/recent-orders');
+            const data = await response.json();
+            if (data.success && data.data.length > 0) {
+                const order = data.data[0];
+                ticker.innerHTML = `<i class="fas fa-clock text-accent"></i> Order #${order.orderNumber} delivered to ${order.deliveryNumber} ${new Date(order.createdAt).toLocaleDateString()}`;
+            }
+        } catch (error) {
+            ticker.innerHTML = '<i class="fas fa-clock text-accent"></i> Recent: Order #BND-8A3F delivered to 054-XXX-XXXX 2 mins ago';
+        }
+    }
+    updateTicker();
+});
+</script>
+
 </body>
 </html>
