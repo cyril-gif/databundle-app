@@ -11,8 +11,7 @@ import checkerRoutes from "./routes/checkerRoutes.js";
 import referralRoutes from "./routes/referralRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-// inside server/app.js or server/server.js
-const dataRoutes = require('./routes/dataRoutes');
+import dataRoutes from './routes/dataRoutes.js';
 
 dotenv.config();
 connectDB();
