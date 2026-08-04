@@ -7,7 +7,6 @@ const state = {
   deliveryPhone: null,
   paymentMethod: "MTN MoMo",
   paymentPhone: null,
-  orderReference: null,
 };
 
 function showAlert(message, type = "error") {
@@ -58,7 +57,7 @@ async function loadBundles(network) {
     grid.innerHTML = bundles
       .map(
         (b) => `
-        <div class="bundle-card" data-id="${b._id}" data-size="${b.size}" data-price="${b.price}" data-package-id="${b.packageId || b._id}">
+        <div class="bundle-card" data-id="${b._id}" data-size="${b.size}" data-price="${b.price}">
           ${b.popular ? '<span class="tag">Best Value</span>' : ""}
           <div class="size">${b.size}</div>
           <div class="price">GH₵${b.price}</div>
@@ -71,12 +70,7 @@ async function loadBundles(network) {
       card.addEventListener("click", () => {
         grid.querySelectorAll(".bundle-card").forEach((c) => c.classList.remove("active"));
         card.classList.add("active");
-        state.bundle = {
-          id: card.dataset.id,
-          size: card.dataset.size,
-          price: Number(card.dataset.price),
-          packageId: card.dataset.packageId,
-        };
+        state.bundle = { id: card.dataset.id, size: card.dataset.size, price: Number(card.dataset.price) };
         document.getElementById("sumBundle").textContent = `${state.bundle.size} — GH₵${state.bundle.price}`;
         document.getElementById("sumTotal").textContent = `GH₵${state.bundle.price}`;
         goToStep(3);
@@ -100,11 +94,7 @@ function submitPhone() {
   goToStep(4);
 }
 
-// ============================================
-// PAYSTACK INTEGRATION - NEW FUNCTIONS
-// ============================================
-
-// STEP 4: Payment with Paystack (NEW)
+// STEP 4: payment + create order
 async function submitOrder() {
   const paymentPhone = document.getElementById("paymentPhone").value.trim();
   const paymentMethod = document.getElementById("paymentMethod").value;
@@ -113,127 +103,6 @@ async function submitOrder() {
     showAlert("Enter a valid 10-digit Mobile Money number");
     return;
   }
-
-  state.paymentPhone = paymentPhone;
-  state.paymentMethod = paymentMethod;
-
-  // Check if Paystack is available - if yes, use Paystack
-  if (window.paystack && window.paystack.initialized) {
-    await initiatePaystackPayment();
-  } else {
-    // Fallback to existing payment method
-    await submitLegacyOrder();
-  }
-}
-
-// NEW: Paystack Payment
-async function initiatePaystackPayment() {
-  const payBtn = document.getElementById("payBtn");
-  payBtn.disabled = true;
-  payBtn.innerHTML = `<span class="spinner"></span> Initializing Paystack…`;
-
-  try {
-    // Get customer details from the form
-    const customerName = document.getElementById("customerName")?.value || "Guest";
-    const customerEmail = document.getElementById("customerEmail")?.value || "guest@example.com";
-    const customerPhone = document.getElementById("customerPhone")?.value || state.deliveryPhone;
-
-    const orderData = {
-      customerName: customerName,
-      customerEmail: customerEmail,
-      customerPhone: customerPhone,
-      network: state.network,
-      bundleSize: state.bundle.size,
-      bundlePrice: state.bundle.price,
-      deliveryNumber: state.deliveryPhone,
-      packageId: state.bundle.packageId || state.bundle.id,
-      paymentMethod: state.paymentMethod,
-    };
-
-    // Initialize payment on backend
-    const response = await api.post("/data/initialize-payment", orderData);
-
-    if (!response.success) {
-      throw new Error(response.message || "Payment initialization failed");
-    }
-
-    // Store order reference
-    state.orderReference = response.data.order.orderNumber;
-
-    // Open Paystack popup
-    window.paystack.openPopup(
-      {
-        email: customerEmail,
-        amount: state.bundle.price,
-        reference: response.data.payment.reference,
-        metadata: {
-          orderNumber: response.data.order.orderNumber,
-          customerName: customerName,
-          customerPhone: customerPhone,
-          network: state.network,
-          bundleSize: state.bundle.size,
-        },
-      },
-      {
-        onSuccess: function (paystackResponse) {
-          // Verify payment
-          verifyPaystackPayment(paystackResponse.reference);
-        },
-        onClose: function () {
-          payBtn.disabled = false;
-          payBtn.textContent = "Confirm & Pay";
-        },
-        onError: function (error) {
-          showAlert(error || "Payment failed. Please try again.");
-          payBtn.disabled = false;
-          payBtn.textContent = "Confirm & Pay";
-        },
-      }
-    );
-  } catch (err) {
-    showAlert(err.message || "Failed to initialize payment");
-    payBtn.disabled = false;
-    payBtn.textContent = "Confirm & Pay";
-  }
-}
-
-// NEW: Verify Paystack Payment
-async function verifyPaystackPayment(reference) {
-  const payBtn = document.getElementById("payBtn");
-  payBtn.disabled = true;
-  payBtn.innerHTML = `<span class="spinner"></span> Verifying payment…`;
-
-  try {
-    const response = await api.get(`/data/verify-payment/${reference}`);
-
-    if (response.success) {
-      // Payment successful - show confirmation
-      renderConfirmation({
-        reference: response.data.orderNumber,
-        status: response.data.status,
-        network: state.network,
-        bundleSize: state.bundle.size,
-        deliveryPhone: state.deliveryPhone,
-        price: state.bundle.price,
-      });
-      goToStep(5);
-    } else {
-      showAlert(response.message || "Payment verification failed");
-      resetToPaymentForm();
-    }
-  } catch (err) {
-    showAlert(err.message || "Failed to verify payment");
-    resetToPaymentForm();
-  } finally {
-    payBtn.disabled = false;
-    payBtn.textContent = "Confirm & Pay";
-  }
-}
-
-// LEGACY: Existing payment method (kept for fallback)
-async function submitLegacyOrder() {
-  const paymentPhone = document.getElementById("paymentPhone").value.trim();
-  const paymentMethod = document.getElementById("paymentMethod").value;
 
   const payBtn = document.getElementById("payBtn");
   payBtn.disabled = true;
@@ -251,10 +120,12 @@ async function submitLegacyOrder() {
     state.paymentPhone = paymentPhone;
 
     if (res.paystackStatus === "send_otp") {
+      // Customer needs to enter a code sent via SMS before payment proceeds
       document.getElementById("payFormFields").style.display = "none";
       document.getElementById("otpBlock").style.display = "block";
       document.getElementById("otpPhone").textContent = paymentPhone;
     } else {
+      // e.g. "pay_offline" — customer approves directly on their phone, no code needed
       showWaitingState(paymentPhone);
       pollOrderStatus(state.orderReference);
     }
@@ -265,7 +136,6 @@ async function submitLegacyOrder() {
   }
 }
 
-// OTP submission (legacy)
 async function submitOtp() {
   const otp = document.getElementById("otpInput").value.trim();
   if (!/^\d{4,6}$/.test(otp)) {
@@ -352,13 +222,13 @@ function renderConfirmation(order) {
     <p class="hint">Order Reference</p>
     <h3 style="margin-bottom:20px;">${order.reference}</h3>
 
-    <div class="status-track" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
+    <div class="status-track">
       ${statusSteps
         .map(
           (s, i) => `
         <div style="flex:1; text-align:center;">
-          <div style="width:12px; height:12px; border-radius:50%; margin:0 auto; background:${i <= currentIndex ? 'var(--accent)' : 'var(--border-color)'};"></div>
-          <p class="hint" style="margin-top:6px; text-transform:capitalize; font-size:0.75rem;">${s.replace("_", " ")}</p>
+          <div class="dot ${i <= currentIndex ? "done" : ""}" style="margin:0 auto;"></div>
+          <p class="hint" style="margin-top:6px; text-transform:capitalize;">${s.replace("_", " ")}</p>
         </div>`
         )
         .join("")}
@@ -373,59 +243,3 @@ function renderConfirmation(order) {
     <a href="buy.html" class="btn btn-primary btn-block" style="margin-top:20px;">Buy Another Bundle</a>
   `;
 }
-
-// ============================================
-// INITIALIZATION
-// ============================================
-
-// Check if Paystack is available and initialize
-document.addEventListener("DOMContentLoaded", function () {
-  // Add customer details fields if they don't exist (for Paystack)
-  const customerStep = document.getElementById("step3");
-  if (customerStep) {
-    const existingForm = customerStep.querySelector(".form-group");
-    if (!document.getElementById("customerName")) {
-      // Add customer details fields
-      const formHtml = `
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="customerName" placeholder="e.g. Kwame Mensah">
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="customerEmail" placeholder="e.g. kwame@email.com">
-          <p class="hint">We'll send your receipt here</p>
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="customerPhone" placeholder="e.g. 0541234567" maxlength="10">
-          <p class="hint">For order confirmation</p>
-        </div>
-      `;
-      // Insert after the delivery phone field
-      const deliveryField = document.getElementById("deliveryPhone").closest(".form-group");
-      if (deliveryField) {
-        deliveryField.insertAdjacentHTML("afterend", formHtml);
-      }
-    }
-  }
-
-  // Check Paystack status
-  if (window.paystack) {
-    window.paystack
-      .init()
-      .then((initialized) => {
-        if (initialized) {
-          console.log("✅ Paystack ready for buy page");
-          // Show Paystack indicator
-          const payBtn = document.getElementById("payBtn");
-          if (payBtn) {
-            payBtn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Paystack';
-          }
-        }
-      })
-      .catch((err) => {
-        console.warn("Paystack not available, using legacy payment");
-      });
-  }
-});
