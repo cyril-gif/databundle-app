@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const checkerOrderSchema = new mongoose.Schema(
   {
     reference: { type: String, required: true, unique: true },
-    examType: { type: String, enum: ["BECE"], default: "BECE" },
+    examType: { type: String, enum: ["BECE", "WASSCE", "PRIVATE"], required: true },
     year: { type: Number, required: true },
     buyerPhone: { type: String, required: true },
     paymentPhone: { type: String, required: true },
