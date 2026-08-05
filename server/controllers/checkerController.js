@@ -2,24 +2,25 @@ import CheckerOrder from "../models/CheckerOrder.js";
 import Voucher from "../models/Voucher.js";
 import Settings from "../models/Settings.js";
 import { generateOrderRef } from "../utils/generateRef.js";
-import { initiateMobileMoneyCharge, PAYSTACK_PROVIDER_MAP, submitOtp } from "../utils/paystack.js";
 
-// Note: checker price now lives in the Settings collection, adjustable from
-// the Admin dashboard — see getSettings/updateSettings in adminController.js
+const VALID_EXAM_TYPES = ["BECE", "WASSCE", "PRIVATE"];
 
-// @desc Buy a BECE result checker voucher (initiates Paystack Mobile Money charge)
+// @desc Create a pending voucher order. Payment is handled entirely by the
+// Paystack Popup on the frontend — this just reserves the order so the popup
+// has a reference/amount to attach payment to.
 // @route POST /api/checker/buy
 export const buyVoucher = async (req, res, next) => {
   try {
-    const { year, buyerPhone, paymentPhone, paymentMethod, quantity } = req.body;
+    const { examType, year, buyerPhone, quantity } = req.body;
 
-    if (!year || !buyerPhone || !paymentPhone || !paymentMethod) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!examType || !VALID_EXAM_TYPES.includes(examType)) {
+      return res.status(400).json({ message: "Select a valid exam type (BECE, WASSCE, or Private)" });
     }
-
-    const provider = PAYSTACK_PROVIDER_MAP[paymentMethod];
-    if (!provider) {
-      return res.status(400).json({ message: "Unsupported payment method" });
+    if (!year || !buyerPhone) {
+      return res.status(400).json({ message: "Year and phone number are required" });
+    }
+    if (!/^0\d{9}$/.test(buyerPhone)) {
+      return res.status(400).json({ message: "Enter a valid 10-digit Ghanaian phone number" });
     }
 
     const settings = await Settings.getSingleton();
@@ -27,63 +28,19 @@ export const buyVoucher = async (req, res, next) => {
     const amountDue = settings.checkerPrice * qty;
 
     const checkerOrder = await CheckerOrder.create({
-      reference: generateOrderRef("BECE"),
+      reference: generateOrderRef("CHK"),
+      examType,
       year,
       buyerPhone,
-      paymentPhone,
-      paymentMethod,
+      paymentPhone: buyerPhone,
+      paymentMethod: "Paystack Popup",
       quantity: qty,
       status: "pending_payment",
     });
 
-    try {
-      const chargeRes = await initiateMobileMoneyCharge({
-        amountPesewas: Math.round(amountDue * 100),
-        email: `${paymentPhone.replace(/\D/g, "")}@${process.env.CUSTOMER_EMAIL_DOMAIN || "customer.databundlegh.com"}`,
-        phone: paymentPhone,
-        provider,
-        reference: checkerOrder.reference,
-      });
-
-      checkerOrder.paymentReference = chargeRes.data.reference;
-      await checkerOrder.save();
-
-      return res.status(201).json({
-        message: "Approve the payment prompt sent to your phone to complete this order.",
-        order: checkerOrder,
-        amountDue,
-        paystackStatus: chargeRes.data.status,
-      });
-    } catch (paymentErr) {
-      checkerOrder.status = "failed";
-      await checkerOrder.save();
-      console.error(`Paystack charge failed for voucher order ${checkerOrder.reference} (phone: ${paymentPhone}):`, paymentErr.message);
-      return res.status(502).json({ message: `Payment could not be started: ${paymentErr.message}` });
-    }
+    res.status(201).json({ order: checkerOrder, amountDue });
   } catch (err) {
     next(err);
-  }
-};
-
-/**
- * Submits an OTP for a pending Mobile Money charge (same pattern as orders).
- * @route POST /api/checker/:reference/submit-otp
- */
-export const submitVoucherOtp = async (req, res, next) => {
-  try {
-    const { otp } = req.body;
-    if (!otp) return res.status(400).json({ message: "OTP is required" });
-
-    const checkerOrder = await CheckerOrder.findOne({ reference: req.params.reference });
-    if (!checkerOrder) return res.status(404).json({ message: "Order not found" });
-    if (!checkerOrder.paymentReference) {
-      return res.status(400).json({ message: "No pending payment found for this order" });
-    }
-
-    const result = await submitOtp({ otp, reference: checkerOrder.paymentReference });
-    res.json({ message: "OTP submitted, waiting for payment confirmation", status: result.data.status });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
 };
 
@@ -96,7 +53,7 @@ export const fulfillCheckerOrder = async (checkerOrder) => {
   if (checkerOrder.status !== "pending_payment") return checkerOrder;
 
   const voucher = await Voucher.findOneAndUpdate(
-    { examType: "BECE", year: checkerOrder.year, used: false },
+    { examType: checkerOrder.examType, year: checkerOrder.year, used: false },
     { used: true, usedBy: checkerOrder._id },
     { new: true }
   );
@@ -124,7 +81,7 @@ export const devConfirmVoucher = async (req, res, next) => {
     const updated = await fulfillCheckerOrder(checkerOrder);
     if (updated.status === "failed") {
       return res.status(409).json({
-        message: "Out of stock for this year's checker vouchers. Customer should be refunded.",
+        message: "Out of stock for this exam type/year. Customer should be refunded.",
       });
     }
 
@@ -156,17 +113,21 @@ export const getCheckerOrder = async (req, res, next) => {
   }
 };
 
-// @desc Admin: bulk-load voucher stock
+// @desc Admin: bulk-load voucher stock for a given exam type + year
 // @route POST /api/checker/vouchers/bulk
 export const bulkAddVouchers = async (req, res, next) => {
   try {
-    const { year, vouchers } = req.body; // vouchers: [{ serial, pin }, ...]
+    const { examType, year, vouchers } = req.body; // vouchers: [{ serial, pin }, ...]
+
+    if (!examType || !VALID_EXAM_TYPES.includes(examType)) {
+      return res.status(400).json({ message: "Select a valid exam type (BECE, WASSCE, or Private)" });
+    }
     if (!year || !Array.isArray(vouchers) || vouchers.length === 0) {
       return res.status(400).json({ message: "Year and a non-empty vouchers array are required" });
     }
 
     const docs = vouchers.map((v) => ({
-      examType: "BECE",
+      examType,
       year,
       serial: v.serial,
       pin: v.pin,
@@ -179,13 +140,13 @@ export const bulkAddVouchers = async (req, res, next) => {
   }
 };
 
-// @desc Admin: check remaining voucher stock per year
+// @desc Admin: check remaining voucher stock per exam type + year
 // @route GET /api/checker/vouchers/stock
 export const getVoucherStock = async (req, res, next) => {
   try {
     const stock = await Voucher.aggregate([
-      { $match: { examType: "BECE" } },
-      { $group: { _id: { year: "$year", used: "$used" }, count: { $sum: 1 } } },
+      { $group: { _id: { examType: "$examType", year: "$year", used: "$used" }, count: { $sum: 1 } } },
+      { $sort: { "_id.examType": 1, "_id.year": -1 } },
     ]);
     res.json(stock);
   } catch (err) {
