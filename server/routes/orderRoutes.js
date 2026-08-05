@@ -1,7 +1,6 @@
 import express from "express";
 import {
   createOrder,
-  submitOrderOtp,
   devConfirmOrder,
   getOrderByReference,
   getMyOrders,
@@ -15,7 +14,6 @@ const router = express.Router();
 
 // Public/optional-auth: guests can buy data without an account
 router.post("/", createOrder);
-router.post("/:reference/submit-otp", submitOrderOtp);
 router.get("/recent-activity", getRecentActivity);
 router.get("/my-orders", protect, getMyOrders);
 router.get("/:reference", getOrderByReference);
