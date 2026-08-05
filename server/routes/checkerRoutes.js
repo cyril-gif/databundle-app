@@ -1,7 +1,6 @@
 import express from "express";
 import {
   buyVoucher,
-  submitVoucherOtp,
   devConfirmVoucher,
   getCheckerOrder,
   bulkAddVouchers,
@@ -12,7 +11,6 @@ import { protect, admin } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post("/buy", buyVoucher);
-router.post("/:reference/submit-otp", submitVoucherOtp);
 router.get("/vouchers/stock", protect, admin, getVoucherStock);
 router.post("/vouchers/bulk", protect, admin, bulkAddVouchers);
 
