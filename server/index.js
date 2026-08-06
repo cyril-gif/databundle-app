@@ -11,6 +11,8 @@ import checkerRoutes from "./routes/checkerRoutes.js";
 import referralRoutes from "./routes/referralRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import configRoutes from "./routes/configRoutes.js";
+
 
 
 dotenv.config();
@@ -41,6 +43,8 @@ app.use("/api/checker", checkerRoutes);
 app.use("/api/referrals", referralRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/config", configRoutes);
+
 
 
 app.use(notFound);
