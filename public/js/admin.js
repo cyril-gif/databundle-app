@@ -118,7 +118,7 @@ async function loadVoucherStock() {
       .map(
         (s) => `
       <div class="stat-card">
-        <div class="label">${s._id.year} — ${s._id.used ? "Used" : "Available"}</div>
+        <div class="label">${s._id.examType} ${s._id.year} — ${s._id.used ? "Used" : "Available"}</div>
         <div class="value">${s.count}</div>
       </div>`
       )
@@ -129,6 +129,7 @@ async function loadVoucherStock() {
 }
 
 async function uploadVouchers() {
+  const examType = document.getElementById("voucherExamType").value;
   const year = document.getElementById("voucherYear").value;
   const raw = document.getElementById("voucherInput").value.trim();
 
@@ -152,7 +153,7 @@ async function uploadVouchers() {
   btn.innerHTML = `<span class="spinner"></span> Uploading…`;
 
   try {
-    const res = await api.post("/checker/vouchers/bulk", { year, vouchers });
+    const res = await api.post("/checker/vouchers/bulk", { examType, year, vouchers });
     showAlert(res.message, "success");
     document.getElementById("voucherInput").value = "";
     loadVoucherStock();
