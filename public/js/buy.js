@@ -5,9 +5,19 @@ const state = {
   network: null,
   bundle: null,
   deliveryPhone: null,
-  paymentMethod: "MTN MoMo",
-  paymentPhone: null,
 };
+
+let paystackPublicKey = null;
+
+async function loadPaystackKey() {
+  try {
+    const config = await api.get("/config");
+    paystackPublicKey = config.paystackPublicKey;
+  } catch (err) {
+    console.error("Failed to load Paystack config:", err.message);
+  }
+}
+loadPaystackKey();
 
 function showAlert(message, type = "error") {
   const box = document.getElementById("alertBox");
@@ -90,81 +100,60 @@ function submitPhone() {
   }
   state.deliveryPhone = phone;
   document.getElementById("sumPhone").textContent = phone;
-  document.getElementById("paymentPhone").value = phone;
+  document.getElementById("payBtnAmount").textContent = state.bundle.price;
   goToStep(4);
 }
 
-// STEP 4: payment + create order
-async function submitOrder() {
-  const paymentPhone = document.getElementById("paymentPhone").value.trim();
-  const paymentMethod = document.getElementById("paymentMethod").value;
-
-  if (!/^0\d{9}$/.test(paymentPhone)) {
-    showAlert("Enter a valid 10-digit Mobile Money number");
-    return;
-  }
-
+// STEP 4: create order, then open Paystack Popup
+async function startPayment() {
   const payBtn = document.getElementById("payBtn");
   payBtn.disabled = true;
-  payBtn.innerHTML = `<span class="spinner"></span> Initiating payment…`;
+  payBtn.innerHTML = `<span class="spinner"></span> Preparing payment…`;
 
   try {
     const res = await api.post("/orders", {
       bundleId: state.bundle.id,
       deliveryPhone: state.deliveryPhone,
-      paymentPhone,
-      paymentMethod,
+    });
+    state.orderReference = res.order.reference;
+
+    if (!paystackPublicKey) {
+      throw new Error("Payment isn't set up yet. Please try again shortly.");
+    }
+
+    const popup = new PaystackPop();
+    popup.newTransaction({
+      key: paystackPublicKey,
+      email: `${state.deliveryPhone.replace(/\D/g, "")}@customer.databundlegh.com`,
+      amount: Math.round(state.bundle.price * 100),
+      currency: "GHS",
+      ref: state.orderReference,
+      onSuccess: () => {
+        showWaitingState();
+        pollOrderStatus(state.orderReference);
+      },
+      onCancel: () => {
+        showAlert("Payment was cancelled.");
+        resetToPaymentForm();
+      },
+      onError: (error) => {
+        showAlert(`Payment error: ${error.message || "please try again"}`);
+        resetToPaymentForm();
+      },
     });
 
-    state.orderReference = res.order.reference;
-    state.paymentPhone = paymentPhone;
-
-    if (res.paystackStatus === "send_otp") {
-      // Customer needs to enter a code sent via SMS before payment proceeds
-      document.getElementById("payFormFields").style.display = "none";
-      document.getElementById("otpBlock").style.display = "block";
-      document.getElementById("otpPhone").textContent = paymentPhone;
-    } else {
-      // e.g. "pay_offline" — customer approves directly on their phone, no code needed
-      showWaitingState(paymentPhone);
-      pollOrderStatus(state.orderReference);
-    }
+    payBtn.disabled = false;
+    payBtn.innerHTML = `Pay GH₵<span id="payBtnAmount">${state.bundle.price}</span>`;
   } catch (err) {
     showAlert(err.message);
     payBtn.disabled = false;
-    payBtn.textContent = "Confirm & Pay";
+    payBtn.innerHTML = `Pay GH₵<span id="payBtnAmount">${state.bundle.price}</span>`;
   }
 }
 
-async function submitOtp() {
-  const otp = document.getElementById("otpInput").value.trim();
-  if (!/^\d{4,6}$/.test(otp)) {
-    showAlert("Enter the code exactly as sent to your phone");
-    return;
-  }
-
-  const otpBtn = document.getElementById("otpBtn");
-  otpBtn.disabled = true;
-  otpBtn.innerHTML = `<span class="spinner"></span> Submitting…`;
-
-  try {
-    await api.post(`/orders/${state.orderReference}/submit-otp`, { otp });
-    document.getElementById("otpBlock").style.display = "none";
-    showWaitingState(state.paymentPhone);
-    pollOrderStatus(state.orderReference);
-  } catch (err) {
-    showAlert(err.message);
-    otpBtn.disabled = false;
-    otpBtn.textContent = "Submit Code";
-  }
-}
-
-function showWaitingState(paymentPhone) {
+function showWaitingState() {
   document.getElementById("payFormFields").style.display = "none";
-  document.getElementById("otpBlock").style.display = "none";
   document.getElementById("waitingBlock").style.display = "block";
-  document.getElementById("waitingAmount").textContent = `GH₵${state.bundle.price}`;
-  document.getElementById("waitingPhone").textContent = paymentPhone;
 }
 
 async function pollOrderStatus(reference, attempt = 0) {
@@ -172,7 +161,7 @@ async function pollOrderStatus(reference, attempt = 0) {
 
   if (attempt >= MAX_ATTEMPTS) {
     showAlert(
-      `Still waiting on payment confirmation for order ${reference}. If you approved the prompt, your data will arrive shortly — otherwise contact support with this reference.`,
+      `Still waiting on payment confirmation for order ${reference}. If you completed payment, your data will arrive shortly — otherwise contact support with this reference.`,
       "info"
     );
     return;
@@ -188,7 +177,7 @@ async function pollOrderStatus(reference, attempt = 0) {
     }
 
     if (order.status === "failed") {
-      showAlert("Payment was not approved or failed. Please try again.");
+      showAlert("Payment was not completed. Please try again.");
       resetToPaymentForm();
       return;
     }
@@ -201,11 +190,7 @@ async function pollOrderStatus(reference, attempt = 0) {
 
 function resetToPaymentForm() {
   document.getElementById("payFormFields").style.display = "block";
-  document.getElementById("otpBlock").style.display = "none";
   document.getElementById("waitingBlock").style.display = "none";
-  const payBtn = document.getElementById("payBtn");
-  payBtn.disabled = false;
-  payBtn.textContent = "Confirm & Pay";
 }
 
 function renderConfirmation(order) {
