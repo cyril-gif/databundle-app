@@ -10,11 +10,8 @@ const orderSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     deliveryPhone: { type: String, required: true },
     paymentPhone: { type: String, required: true },
-    paymentMethod: {
-      type: String,
-      enum: ["MTN MoMo", "Telecel Cash", "AirtelTigo Money"],
-      required: true,
-    },
+    paymentMethod: { type: String, default: "Paystack Popup" }, // actual channel chosen inside the Paystack popup, not tracked here
+
     paymentReference: { type: String, default: null },
     providerOrderId: { type: String, default: null }, // iDataGH's order_id, for status checks
     status: {
