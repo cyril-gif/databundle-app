@@ -7,11 +7,8 @@ const checkerOrderSchema = new mongoose.Schema(
     year: { type: Number, required: true },
     buyerPhone: { type: String, required: true },
     paymentPhone: { type: String, required: true },
-    paymentMethod: {
-      type: String,
-      enum: ["MTN MoMo", "Telecel Cash", "AirtelTigo Money"],
-      required: true,
-    },
+     paymentMethod: { type: String, default: "Paystack Popup" },
+
     paymentReference: { type: String, default: null },
     voucher: { type: mongoose.Schema.Types.ObjectId, ref: "Voucher", default: null },
     quantity: { type: Number, default: 1 }, // for bulk buys
